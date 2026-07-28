@@ -8,6 +8,7 @@ import JsonLd from '@/components/JsonLd'
 import { serviceIcons } from '@/components/Icons'
 import { serviceSchema } from '@/lib/schema'
 import { getService, services } from '@/data/services'
+import Photo from '@/components/Photo'
 
 type Params = { params: Promise<{ slug: string }> }
 
@@ -37,7 +38,7 @@ export default async function ServiceDetailPage({ params }: Params) {
   return (
     <>
       <section className="detail-hero">
-        <img src={service.banner} alt="" width={1600} height={620} />
+        <Photo src={service.banner} alt=""  sizes="100vw" priority />
         <div className="detail-hero__in">
           <Link className="hero__badge" href="/services">
             {service.name} <b>All Services</b>
@@ -74,7 +75,7 @@ export default async function ServiceDetailPage({ params }: Params) {
                 )
               })}
             </nav>
-            <img src="/images/sidebar-service.webp" alt="" width={620} height={470} />
+            <Photo src="/images/sidebar-service.webp" alt="" sizes="(max-width: 1080px) 100vw, 23vw" />
           </aside>
 
           <div className="prose" data-reveal>
@@ -130,7 +131,7 @@ export default async function ServiceDetailPage({ params }: Params) {
                 data-reveal
                 style={{ ['--reveal-delay' as string]: `${i * 0.08}s` }}
               >
-                <img src={s.card} alt="" width={900} height={400} />
+                <Photo src={s.card} alt=""  sizes="(max-width: 860px) 100vw, 50vw" />
                 <b>{s.name}</b>
                 <ArrowCircle />
               </Link>

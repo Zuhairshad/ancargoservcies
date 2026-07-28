@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { featuredServices } from '@/data/services'
 import { serviceIcons } from '@/components/Icons'
 import TrackForm from '@/components/TrackForm'
+import Photo from '@/components/Photo'
 
 export default function Hero() {
   const railServices = featuredServices
@@ -9,7 +10,12 @@ export default function Hero() {
   return (
     <section className="hero">
       <div className="hero__main">
-        <img src="/images/hero-highway.webp" alt="Freight moving along an open highway" width={1600} height={1060} />
+        <Photo
+          src="/images/hero-highway.webp"
+          alt="Freight moving along an open highway"
+          sizes="(max-width: 860px) 100vw, 73vw"
+          priority
+        />
         <Link className="hero__badge" href="/rates" data-reveal style={{ ['--reveal-delay' as string]: '.05s' }}>
           Send gifts home at discounted freight rates <b>See Rates</b>
         </Link>
@@ -22,11 +28,11 @@ export default function Hero() {
       </div>
 
       <aside className="hero__rail">
-        <img
+        <Photo
           src="/images/hero-rail.webp"
-          alt="Driver checking a delivery manifest beside a cargo truck"
-          width={560}
-          height={510}
+          alt="Warehouse supervisor checking a consignment"
+          sizes="(max-width: 860px) 100vw, 27vw"
+          priority
         />
         <div className="hero__rail-body">
           <div className="hero__services">

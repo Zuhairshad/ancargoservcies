@@ -16,7 +16,7 @@ export const posts: Post[] = [
       'A carton crossing the ocean is handled a dozen times and sits in a container for a month. Here is how to pack so it arrives in one piece.',
     date: '2026-06-18',
     readingTime: '4 min read',
-    image: '/images/gallery-2.webp',
+    image: '/images/post-packing.webp',
     body: [
       'A parcel going by sea is not the same as a parcel going across town. It will be lifted, stacked, driven, craned and stored, often under other cargo, for three to four weeks. Most damage we see is not rough handling — it is packing that was never meant to last that long.',
       'Use double-wall cartons. Single-wall boxes from a supermarket are fine for a courier envelope going 20 kilometres; they are not fine for a container. Fill every void so nothing shifts, because a half-empty box collapses under the weight of the one above it.',
@@ -31,7 +31,7 @@ export const posts: Post[] = [
       'Air is faster and sea is cheaper, but the honest answer depends on weight, deadline and what is in the box.',
     date: '2026-05-27',
     readingTime: '3 min read',
-    image: '/images/gallery-5.webp',
+    image: '/images/post-sea-or-air.webp',
     body: [
       'The rule of thumb: if the consignment is under about 30 kg and needed within a fortnight, air usually wins on total cost once you account for the value of arriving on time. Above that weight, sea pulls ahead quickly, and the gap widens with every kilo.',
       'Weight is not the only factor. Air freight is charged on volumetric weight as well as actual weight, so a light but bulky consignment — bedding, clothing, cushions — can cost far more by air than the scales suggest. Sea is far more forgiving of volume.',
@@ -46,7 +46,7 @@ export const posts: Post[] = [
       'Most delays at customs are paperwork, not policy. Here is the list, and what each document is actually for.',
     date: '2026-04-30',
     readingTime: '5 min read',
-    image: '/images/gallery-3.webp',
+    image: '/images/post-documents.webp',
     body: [
       'Every consignment leaving Pakistan needs a packing list and a commercial or personal invoice. The packing list says what is in each carton; the invoice says what it is worth. Customs at both ends read these two documents before anything else.',
       'For commercial shipments you will also need your NTN, an export declaration and, depending on the commodity, a certificate of origin. For personal effects, a copy of the sender’s ID and the recipient’s ID is usually enough.',

@@ -1,0 +1,238 @@
+{
+  "/images/avatar-1.webp": {
+    "w": 84,
+    "h": 84
+  },
+  "/images/avatar-2.webp": {
+    "w": 84,
+    "h": 84
+  },
+  "/images/avatar-3.webp": {
+    "w": 84,
+    "h": 84
+  },
+  "/images/contact-banner.webp": {
+    "w": 2000,
+    "h": 742,
+    "sm": {
+      "w": 1376,
+      "h": 510
+    }
+  },
+  "/images/gallery-1.webp": {
+    "w": 688,
+    "h": 516
+  },
+  "/images/gallery-2.webp": {
+    "w": 688,
+    "h": 516
+  },
+  "/images/gallery-3.webp": {
+    "w": 688,
+    "h": 516
+  },
+  "/images/gallery-4.webp": {
+    "w": 688,
+    "h": 516
+  },
+  "/images/gallery-5.webp": {
+    "w": 688,
+    "h": 516
+  },
+  "/images/gallery-6.webp": {
+    "w": 688,
+    "h": 516
+  },
+  "/images/gallery-7.webp": {
+    "w": 688,
+    "h": 516
+  },
+  "/images/gallery-8.webp": {
+    "w": 688,
+    "h": 516
+  },
+  "/images/hero-air-cargo.webp": {
+    "w": 1600,
+    "h": 622,
+    "sm": {
+      "w": 1440,
+      "h": 560
+    }
+  },
+  "/images/hero-door-to-door.webp": {
+    "w": 2000,
+    "h": 777,
+    "sm": {
+      "w": 1440,
+      "h": 560
+    }
+  },
+  "/images/hero-highway.webp": {
+    "w": 2100,
+    "h": 1460,
+    "sm": {
+      "w": 1050,
+      "h": 730
+    }
+  },
+  "/images/hero-port-to-port.webp": {
+    "w": 2000,
+    "h": 777,
+    "sm": {
+      "w": 1440,
+      "h": 560
+    }
+  },
+  "/images/hero-postal.webp": {
+    "w": 2000,
+    "h": 777,
+    "sm": {
+      "w": 1440,
+      "h": 560
+    }
+  },
+  "/images/hero-rail.webp": {
+    "w": 773,
+    "h": 682,
+    "sm": {
+      "w": 390,
+      "h": 344
+    }
+  },
+  "/images/hero-road-rail.webp": {
+    "w": 1600,
+    "h": 622,
+    "sm": {
+      "w": 1440,
+      "h": 560
+    }
+  },
+  "/images/hero-sea-cargo.webp": {
+    "w": 1600,
+    "h": 622,
+    "sm": {
+      "w": 1440,
+      "h": 560
+    }
+  },
+  "/images/hero-warehousing.webp": {
+    "w": 2000,
+    "h": 777,
+    "sm": {
+      "w": 1440,
+      "h": 560
+    }
+  },
+  "/images/post-documents.webp": {
+    "w": 2000,
+    "h": 742,
+    "sm": {
+      "w": 1000,
+      "h": 371
+    }
+  },
+  "/images/post-packing.webp": {
+    "w": 2000,
+    "h": 742,
+    "sm": {
+      "w": 1000,
+      "h": 371
+    }
+  },
+  "/images/post-sea-or-air.webp": {
+    "w": 1600,
+    "h": 593,
+    "sm": {
+      "w": 1000,
+      "h": 371
+    }
+  },
+  "/images/sidebar-service.webp": {
+    "w": 1240,
+    "h": 940,
+    "sm": {
+      "w": 620,
+      "h": 470
+    }
+  },
+  "/images/supervisor.webp": {
+    "w": 1296,
+    "h": 1040,
+    "sm": {
+      "w": 648,
+      "h": 520
+    }
+  },
+  "/images/svc-air-cargo.webp": {
+    "w": 1352,
+    "h": 600,
+    "sm": {
+      "w": 676,
+      "h": 300
+    }
+  },
+  "/images/svc-door-to-door.webp": {
+    "w": 1352,
+    "h": 600,
+    "sm": {
+      "w": 676,
+      "h": 300
+    }
+  },
+  "/images/svc-port-to-port.webp": {
+    "w": 1352,
+    "h": 600,
+    "sm": {
+      "w": 676,
+      "h": 300
+    }
+  },
+  "/images/svc-postal.webp": {
+    "w": 1352,
+    "h": 600,
+    "sm": {
+      "w": 676,
+      "h": 300
+    }
+  },
+  "/images/svc-road-rail.webp": {
+    "w": 1352,
+    "h": 600,
+    "sm": {
+      "w": 676,
+      "h": 300
+    }
+  },
+  "/images/svc-sea-cargo.webp": {
+    "w": 1352,
+    "h": 600,
+    "sm": {
+      "w": 676,
+      "h": 300
+    }
+  },
+  "/images/svc-warehousing.webp": {
+    "w": 1200,
+    "h": 532,
+    "sm": {
+      "w": 676,
+      "h": 300
+    }
+  },
+  "/images/trucks-sunset.webp": {
+    "w": 1440,
+    "h": 1044,
+    "sm": {
+      "w": 720,
+      "h": 522
+    }
+  },
+  "/images/warehouse.webp": {
+    "w": 1024,
+    "h": 436,
+    "sm": {
+      "w": 702,
+      "h": 300
+    }
+  }
+}

@@ -45,7 +45,7 @@ export default function Lightbox({ items }: { items: Item[] }) {
             data-reveal
             style={{ ['--reveal-delay' as string]: `${(i % 4) * 0.06}s` }}
           >
-            <img src={item.src} alt={item.alt} width={640} height={480} />
+            <img src={item.src} alt={item.alt} width={688} height={516} loading="lazy" />
           </button>
         ))}
       </div>

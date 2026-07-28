@@ -1,5 +1,6 @@
 import { ArrowRight } from './Icons'
 import Link from 'next/link'
+import Photo from './Photo'
 
 type Props = {
   title: string
@@ -31,7 +32,7 @@ export default function PageHero({ title, intro, badge, banner }: Props) {
       </section>
       {banner && (
         <div className="page-hero__banner" data-reveal>
-          <img src={banner.src} alt={banner.alt} width={1400} height={520} />
+          <Photo src={banner.src} alt={banner.alt}  sizes="100vw" />
         </div>
       )}
     </>

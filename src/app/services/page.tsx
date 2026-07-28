@@ -3,6 +3,7 @@ import Link from 'next/link'
 import PageHero, { ArrowCircle } from '@/components/PageHero'
 import CtaBand from '@/components/CtaBand'
 import { services } from '@/data/services'
+import Photo from '@/components/Photo'
 import { stats } from '@/data/site'
 
 export const metadata: Metadata = {
@@ -32,7 +33,11 @@ export default function ServicesPage() {
                 style={{ ['--reveal-delay' as string]: `${(i % 3) * 0.07}s` }}
               >
                 <div className="card__img">
-                  <img src={service.card} alt="" width={900} height={400} />
+                  <Photo
+                    src={service.card}
+                    alt=""
+                    sizes="(max-width: 860px) 100vw, (max-width: 1080px) 50vw, 33vw"
+                  />
                 </div>
                 <div className="card__body">
                   <em>{String(i + 1).padStart(2, '0')}</em>

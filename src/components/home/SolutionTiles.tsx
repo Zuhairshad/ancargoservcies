@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { featuredServices } from '@/data/services'
 import { ArrowCircle } from '@/components/PageHero'
+import Photo from '@/components/Photo'
 
 export default function SolutionTiles() {
   const tiles = featuredServices
@@ -27,7 +28,11 @@ export default function SolutionTiles() {
               data-reveal
               style={{ ['--reveal-delay' as string]: delays[i] }}
             >
-              <img src={service.card} alt="" width={900} height={400} />
+              <Photo
+                src={service.card}
+                alt=""
+                sizes="(max-width: 860px) 100vw, 50vw"
+              />
               <b>{service.name}</b>
               <ArrowCircle />
             </Link>

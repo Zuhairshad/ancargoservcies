@@ -1,4 +1,5 @@
 import { offices, site } from '@/data/site'
+import Photo from '@/components/Photo'
 
 /**
  * Transo puts a dotted US map here. ANCS ships out of Pakistan, so the same
@@ -48,7 +49,11 @@ export default function Coverage() {
         </div>
 
         <div className="coverage__card" data-reveal style={{ ['--reveal-delay' as string]: '.1s' }}>
-          <img src="/images/warehouse.webp" alt="Warehouse and consolidation facility" width={1024} height={455} />
+          <Photo
+            src="/images/warehouse.webp"
+            alt="Warehouse and consolidation facility"
+            sizes="(max-width: 1080px) 100vw, 52vw"
+          />
           <div className="coverage__offices">
             <b>Our offices</b>
             {offices.map((office) => (

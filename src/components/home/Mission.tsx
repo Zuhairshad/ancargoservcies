@@ -1,4 +1,5 @@
 import { site } from '@/data/site'
+import Photo from '@/components/Photo'
 
 export default function Mission() {
   return (
@@ -18,7 +19,11 @@ export default function Mission() {
         </div>
       </div>
       <div className="mission__img">
-        <img src="/images/trucks-sunset.webp" alt="Cargo trucks lined up at a depot at sunset" width={1024} height={760} />
+        <Photo
+          src="/images/trucks-sunset.webp"
+          alt="Warehouse team handling a packed consignment"
+          sizes="(max-width: 1080px) 100vw, 50vw"
+        />
       </div>
     </section>
   )

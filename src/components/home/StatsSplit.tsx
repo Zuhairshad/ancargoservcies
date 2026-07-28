@@ -1,10 +1,15 @@
 import Link from 'next/link'
 import { stats } from '@/data/site'
+import Photo from '@/components/Photo'
 
 export default function StatsSplit() {
   return (
     <section className="stats-split">
-      <img src="/images/supervisor.webp" alt="Warehouse supervisor checking stock" width={760} height={790} />
+      <Photo
+        src="/images/supervisor.webp"
+        alt="Driver checking a delivery manifest beside a cargo truck"
+        sizes="(max-width: 1080px) 100vw, 45vw"
+      />
       <div className="stats-split__panel">
         <h2 className="h-section" data-reveal>
           We move parcels, gifts, documents and commercial freight — by air, sea, road and rail.

@@ -7,6 +7,7 @@ import JsonLd from '@/components/JsonLd'
 import { postSchema } from '@/lib/schema'
 import { getPost, posts } from '@/data/posts'
 import { formatDate } from '@/lib/dates'
+import Photo from '@/components/Photo'
 
 type Params = { params: Promise<{ slug: string }> }
 
@@ -52,7 +53,7 @@ export default async function PostPage({ params }: Params) {
       </section>
 
       <div className="page-hero__banner" data-reveal>
-        <img src={post.image} alt="" width={1400} height={520} />
+        <Photo src={post.image} alt=""  sizes="100vw" priority />
       </div>
 
       <section className="band">

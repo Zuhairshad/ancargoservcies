@@ -3,6 +3,7 @@ import { secondaryServices } from '@/data/services'
 import { site } from '@/data/site'
 import { ArrowCircle } from '@/components/PageHero'
 import { ArrowRight } from '@/components/Icons'
+import Photo from '@/components/Photo'
 
 export default function ServicesBand() {
   const cards = secondaryServices
@@ -48,7 +49,11 @@ export default function ServicesBand() {
               </div>
               <div className="svc-card__img">
                 <ArrowCircle />
-                <img src={service.card} alt="" width={900} height={400} />
+                <Photo
+                  src={service.card}
+                  alt=""
+                  sizes="(max-width: 860px) 100vw, 33vw"
+                />
               </div>
             </Link>
           ))}

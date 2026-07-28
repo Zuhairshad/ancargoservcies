@@ -172,6 +172,34 @@ the machine. Asserts on the messages that actually arrive: recipients, `Reply-To
 that bcc stays out of the headers, multipart text + HTML, body contents, which
 statuses stay quiet, and that a dead server degrades instead of throwing.
 
+## Images
+
+Every image is encoded at **2× its CSS display size at quality 88**, and **nothing is
+upscaled** — where a source cannot reach 2×, it is capped at its native resolution rather
+than stretched. `scripts/` has no part in this; the encode is a one-off build step whose
+output is committed, alongside `src/data/image-manifest.json` recording the true encoded
+dimensions of every file.
+
+That manifest matters: several files are capped by their source, so hardcoding widths in
+`srcset` would lie to the browser and make it pick the wrong candidate. `Photo`
+(`src/components/Photo.tsx`) reads the manifest and emits truthful descriptors. Large
+slots also ship a half-width `-sm` companion, so a phone on mobile data does not download
+the desktop file — measured at 3.2 MB of imagery for seven pages on a standard desktop
+against 4.1 MB on a retina one.
+
+Three images still render below 1:1 on a retina screen, all limited by their source and
+all reported by the encode step rather than hidden:
+
+| File | Source | Renders at |
+| --- | --- | --- |
+| `hero-sea-cargo.webp` | 1600 px | 0.56× on a 1440 px band |
+| `contact-banner.webp` | 2000 px | 0.76× |
+| `warehouse.webp` | 1024 px | 0.78× |
+
+Full-bleed banners are the hard case: a 1440 px band wants 2880 px, and only the highway
+photograph is that large. All three sit behind a dark overlay with text over them, so the
+softness is not obvious — but real photography would fix it properly.
+
 ## Frontend details
 
 Things worth knowing before editing:
@@ -219,9 +247,12 @@ Honest list of what is scaffolded but not finished:
   site shipped the WordPress theme's demo names (John Peterson, Emily Carter, …); we are not repeating that.
 - **Stats are the six defensible ones** (15+ years, 6 offices, 4 modes, 200+ destinations, 4 courier partners,
   24/7 support). The old About page rendered its counters as literal `00`. No invented figures here.
-- **Photography is placeholder.** Images come from the Transo template plus a few from the current ANCS site.
-  **Confirm licensing before launch**, or replace with ANCS's own photography — this design leans on large
-  images and it will show.
+- **Photography is placeholder.** Images come from the Transo template plus two from the current ANCS site.
+  **Confirm licensing before launch**, or replace with ANCS's own photography. Note that ANCS's existing photos
+  are mostly 280–375 px wide, which is too small to use — every slot they previously filled has been re-pointed
+  at a high-resolution source. New photography needs to be at least 2000 px on the long edge.
+- **Air and sea cargo have no dedicated photograph.** Both cards and banners use two different crops of the same
+  ANCS port photograph, because neither library has an aircraft or vessel shot. Replace them first.
 - **WhatsApp is deep-link only.** Every button opens WhatsApp with the message pre-typed, which works today and
   costs nothing. Automatic sending needs the WhatsApp Business API, a Meta Business account and approved
   templates.

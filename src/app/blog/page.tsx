@@ -4,6 +4,7 @@ import PageHero, { ArrowCircle } from '@/components/PageHero'
 import CtaBand from '@/components/CtaBand'
 import { posts } from '@/data/posts'
 import { formatDate } from '@/lib/dates'
+import Photo from '@/components/Photo'
 
 export const metadata: Metadata = {
   title: 'Blog',
@@ -25,7 +26,11 @@ export default function BlogPage() {
               style={{ ['--reveal-delay' as string]: `${(i % 3) * 0.07}s` }}
             >
               <div className="card__img">
-                <img src={post.image} alt="" width={640} height={480} />
+                <Photo
+                  src={post.image}
+                  alt=""
+                  sizes="(max-width: 860px) 100vw, (max-width: 1080px) 50vw, 33vw"
+                />
               </div>
               <div className="card__body">
                 <em>{formatDate(post.date)}</em>
