@@ -14,6 +14,7 @@ sizes, a 1376px content frame, and the same scroll-reveal (fade + 30px rise). Th
 - **Next.js 16** (App Router) + **React 19** + **TypeScript**
 - Plain CSS — one design-system stylesheet, `src/app/globals.css`. No CSS framework.
 - Inter self-hosted from `public/fonts` (no Google Fonts request, so no consent-banner question in the UK)
+- JSON-LD structured data, Open Graph share image, sitemap and robots — no analytics or third-party scripts
 - `qrcode` for the carton-label QR codes
 - **PostgreSQL** via `pg`, behind a store interface — see [Database](#database)
 - **SMTP** via `nodemailer`, behind a mailer interface — see [Email](#email)
@@ -66,7 +67,9 @@ npm run typecheck            # tsc --noEmit
 | `/why-choose-us`         | Six reasons                                                                |
 | `/faq`                   | Two-column accordion                                                       |
 | `/contact`               | Office details and enquiry form                                            |
-| `/gallery`, `/blog`      | Gallery grid; three articles                                               |
+| `/gallery`               | Grid with a keyboard-navigable lightbox                                    |
+| `/blog`, `/blog/[slug]`  | Three articles                                                             |
+| `/terms`, `/privacy`     | **Draft** terms of service and privacy policy — need legal review          |
 | `/admin`                 | Staff: shipment list                                                       |
 | `/admin/shipments/[ref]` | Staff: confirm freight, add status updates, send WhatsApp update            |
 | `/admin/label/[ref]`     | **4×6in carton labels with QR**, one per piece, print-ready                |
@@ -169,6 +172,32 @@ the machine. Asserts on the messages that actually arrive: recipients, `Reply-To
 that bcc stays out of the headers, multipart text + HTML, body contents, which
 statuses stay quiet, and that a dead server degrades instead of throwing.
 
+## Frontend details
+
+Things worth knowing before editing:
+
+- **Scroll reveal** is one `IntersectionObserver` in `src/components/Reveal.tsx` watching every
+  `[data-reveal]`. Stagger with `style={{ '--reveal-delay': '.06s' }}`. Anything already on screen at first
+  paint reveals immediately rather than animating in late.
+- **Structured data** lives in `src/lib/schema.ts` — `MovingCompany` with the six branches and opening hours
+  sitewide, plus `Service`, `FAQPage`, `BlogPosting` and `BreadcrumbList` where they apply. This is what puts
+  the phone number and hours into a Google result rather than just a blue link.
+- **Share image** is `public/og.jpg`, referenced from Open Graph and Twitter metadata. Regenerate it if the
+  headline changes — it matters because these links get pasted into WhatsApp constantly.
+- **Accessibility**: skip link as the first tab stop, visible focus rings everywhere, `aria-current` on the
+  active nav item, labelled form fields, and the lightbox is a real `role="dialog"` with Escape and arrow keys.
+- **The lightbox portals to `document.body`** so no ancestor stacking context can trap it behind the header.
+- **`error.tsx`** catches runtime failures with a route back; `loading.tsx` on `/track/[ref]` shows a skeleton,
+  since a QR scan often opens that page on a slow phone connection.
+- **Honeypot** field named `company` on both public forms. Bots fill it, people do not.
+
+### Testing the frontend
+
+`scripts/` covers the backend; the frontend was verified by driving a real browser: the lightbox (open, keyboard
+navigation, scroll lock, Escape), the skip link as first tab stop, the mobile menu open/navigate/close, footer
+subscribe feedback, breadcrumb markup, and **no horizontal overflow on any of the 15 public pages at 390px**.
+A link crawler confirmed 24 pages with no broken internal links.
+
 ## Known gaps
 
 Honest list of what is scaffolded but not finished:
@@ -178,6 +207,8 @@ Honest list of what is scaffolded but not finished:
   spam. Deliverability is a DNS job, not a code one.
 - **No unsubscribe link yet.** The `subscribers` table has an `unsubscribed` flag but nothing sets it. Needed
   before any bulk send.
+- **Terms and privacy are drafts.** Both pages carry a visible notice saying so. The privacy policy matters most:
+  ANCS delivers in the UK and EU, so UK GDPR duties likely apply and the named data controller needs confirming.
 - **Auth is a single shared password.** Fine for two or three people; replace with per-user accounts before more.
 - **Invoices are not sequentially numbered** and carry no NTN or GST registration. Both are needed before these
   go to customers — see the note at the bottom of the invoice template.

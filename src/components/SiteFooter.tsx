@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
+import SubscribeNotice from './SubscribeNotice'
 import { nav, site } from '@/data/site'
 
 export default function SiteFooter() {
@@ -39,6 +41,9 @@ export default function SiteFooter() {
 
             <div className="site-footer__sub" data-reveal style={{ ['--reveal-delay' as string]: '.3s' }}>
               <b>Get rates and shipping news straight to your inbox.</b>
+              <Suspense fallback={null}>
+                <SubscribeNotice />
+              </Suspense>
               <form className="inline-field inline-field--onDark" action="/api/subscribe" method="post">
                 <label className="sr-only" htmlFor="footer-email">
                   Email address

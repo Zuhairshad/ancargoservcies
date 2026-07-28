@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import CtaBand from '@/components/CtaBand'
+import Breadcrumbs from '@/components/Breadcrumbs'
+import JsonLd from '@/components/JsonLd'
+import { postSchema } from '@/lib/schema'
 import { getPost, posts } from '@/data/posts'
 import { formatDate } from '@/lib/dates'
 
@@ -15,7 +18,18 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params
   const post = getPost(slug)
   if (!post) return {}
-  return { title: post.title, description: post.excerpt }
+  return {
+    title: post.title,
+    description: post.excerpt,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      type: 'article',
+      title: post.title,
+      description: post.excerpt,
+      publishedTime: post.date,
+      images: [{ url: post.image }],
+    },
+  }
 }
 
 export default async function PostPage({ params }: Params) {
@@ -43,7 +57,14 @@ export default async function PostPage({ params }: Params) {
 
       <section className="band">
         <div className="frame" style={{ maxWidth: '46rem' }}>
-          <div className="prose" data-reveal>
+          <Breadcrumbs
+            trail={[
+              { name: 'Home', href: '/' },
+              { name: 'Blog', href: '/blog' },
+              { name: post.title, href: `/blog/${post.slug}` },
+            ]}
+          />
+          <div className="prose" data-reveal style={{ marginTop: '1.5rem' }}>
             {post.body.map((p) => (
               <p key={p.slice(0, 40)}>{p}</p>
             ))}
@@ -60,6 +81,7 @@ export default async function PostPage({ params }: Params) {
       </section>
 
       <CtaBand />
+      <JsonLd data={postSchema(post)} />
     </>
   )
 }

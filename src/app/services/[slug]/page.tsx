@@ -3,7 +3,10 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowCircle } from '@/components/PageHero'
 import CtaBand from '@/components/CtaBand'
+import Breadcrumbs from '@/components/Breadcrumbs'
+import JsonLd from '@/components/JsonLd'
 import { serviceIcons } from '@/components/Icons'
+import { serviceSchema } from '@/lib/schema'
 import { getService, services } from '@/data/services'
 
 type Params = { params: Promise<{ slug: string }> }
@@ -16,7 +19,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params
   const service = getService(slug)
   if (!service) return {}
-  return { title: service.name, description: service.summary }
+  return {
+    title: service.name,
+    description: service.summary,
+    alternates: { canonical: `/services/${service.slug}` },
+    openGraph: { title: service.name, description: service.summary, images: [{ url: '/og.jpg' }] },
+  }
 }
 
 export default async function ServiceDetailPage({ params }: Params) {
@@ -40,6 +48,15 @@ export default async function ServiceDetailPage({ params }: Params) {
       </section>
 
       <section className="band">
+        <div className="frame" style={{ paddingBottom: '1.5rem' }}>
+          <Breadcrumbs
+            trail={[
+              { name: 'Home', href: '/' },
+              { name: 'Services', href: '/services' },
+              { name: service.name, href: `/services/${service.slug}` },
+            ]}
+          />
+        </div>
         <div className="frame detail-grid">
           <aside className="detail-aside">
             <nav className="detail-aside__nav" aria-label="Services">
@@ -128,6 +145,7 @@ export default async function ServiceDetailPage({ params }: Params) {
       </section>
 
       <CtaBand />
+      <JsonLd data={serviceSchema(service)} />
     </>
   )
 }

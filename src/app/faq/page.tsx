@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import PageHero from '@/components/PageHero'
 import CtaBand from '@/components/CtaBand'
 import Accordion from '@/components/Accordion'
+import JsonLd from '@/components/JsonLd'
+import { faqSchema } from '@/lib/schema'
 import { faqs } from '@/data/faq'
 
 export const metadata: Metadata = {
@@ -22,6 +24,7 @@ export default function FaqPage() {
         </div>
       </section>
       <CtaBand />
+      <JsonLd data={faqSchema()} />
     </>
   )
 }
