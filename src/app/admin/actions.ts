@@ -4,6 +4,8 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { store } from '@/lib/store'
+import { mailer } from '@/lib/mail'
+import { bookingConfirmed, statusChanged } from '@/lib/emails'
 import type { Status } from '@/lib/shipments'
 import { AUTH_COOKIE } from '@/lib/auth'
 
@@ -48,7 +50,13 @@ export async function updateStatus(form: FormData) {
   const status = String(form.get('status')) as Status
   const location = String(form.get('location') ?? '').trim() || undefined
   const note = String(form.get('note') ?? '').trim() || undefined
-  await store.addEvent(ref, status, location, note)
+  const shipment = await store.addEvent(ref, status, location, note)
+
+  if (shipment) {
+    const message = statusChanged(shipment)
+    if (message) await mailer.send(message)
+  }
+
   revalidatePath(`/admin/shipments/${ref}`)
   revalidatePath(`/track/${ref}`)
 }
@@ -56,7 +64,13 @@ export async function updateStatus(form: FormData) {
 export async function confirmShipment(form: FormData) {
   const ref = String(form.get('ref'))
   const freight = Number(form.get('freightPkr'))
-  if (Number.isFinite(freight) && freight >= 0) await store.confirm(ref, freight)
+  if (Number.isFinite(freight) && freight >= 0) {
+    const shipment = await store.confirm(ref, freight)
+    if (shipment) {
+      const message = bookingConfirmed(shipment)
+      if (message) await mailer.send(message)
+    }
+  }
   revalidatePath(`/admin/shipments/${ref}`)
   revalidatePath(`/track/${ref}`)
 }

@@ -3,6 +3,8 @@
 import { redirect } from 'next/navigation'
 import { store } from '@/lib/store'
 import { getQuote } from '@/lib/quote'
+import { mailer, officeInbox } from '@/lib/mail'
+import { bookingReceived } from '@/lib/emails'
 import type { ServiceMode } from '@/data/rates'
 
 export type BookingState = { error?: string }
@@ -12,6 +14,11 @@ function text(form: FormData, key: string) {
 }
 
 export async function createBooking(_prev: BookingState, form: FormData): Promise<BookingState> {
+  // Honeypot: hidden from people, filled in by most form bots.
+  if (String(form.get('company') ?? '').trim() !== '') {
+    return { error: 'Something went wrong submitting that. Please try again.' }
+  }
+
   const required = [
     'senderName',
     'senderPhone',
@@ -63,6 +70,20 @@ export async function createBooking(_prev: BookingState, form: FormData): Promis
     estimatePkr: quote.kind === 'priced' ? quote.totalPkr : null,
     pickupDate: text(form, 'pickupDate') || undefined,
   })
+
+  // Notifications must never break the booking that triggered them: the mailer
+  // logs and returns rather than throwing, but guard the whole block anyway.
+  try {
+    const receipt = bookingReceived(shipment)
+    if (receipt) await mailer.send({ ...receipt, bcc: officeInbox })
+    else await mailer.send({
+      to: officeInbox,
+      subject: `${shipment.ref} — new booking (no customer email given)`,
+      text: `New booking ${shipment.ref} from ${shipment.sender.name}, ${shipment.sender.phone}.\nCall to arrange collection.`,
+    })
+  } catch (error) {
+    console.error('[book] notification failed:', error)
+  }
 
   redirect(`/book/confirmed/${shipment.ref}`)
 }

@@ -2,13 +2,27 @@ import type { Metadata } from 'next'
 import PageHero from '@/components/PageHero'
 import CtaBand from '@/components/CtaBand'
 import { offices, site, whatsappLink } from '@/data/site'
+import { mailConfigured } from '@/lib/mail'
 
 export const metadata: Metadata = {
   title: 'Contact',
   description: 'Contact AN Cargo Services in Faisalabad, Lahore, Karachi, Manchester, Dubai or Saudi Arabia.',
 }
 
-export default function ContactPage() {
+type Props = { searchParams: Promise<{ sent?: string }> }
+
+const feedback: Record<string, { tone: 'ok' | 'bad'; text: string }> = {
+  ok: { tone: 'ok', text: 'Thank you — your message is with our team. We usually reply the same working day.' },
+  queued: {
+    tone: 'ok',
+    text: 'Thank you — your message was received. If you need an answer urgently, WhatsApp is faster.',
+  },
+  invalid: { tone: 'bad', text: 'Please add your name, a valid email address and a message, then send again.' },
+}
+
+export default async function ContactPage({ searchParams }: Props) {
+  const { sent } = await searchParams
+  const status = sent ? feedback[sent] : undefined
   const head = offices.find((o) => o.head)!
 
   return (
@@ -65,6 +79,22 @@ export default function ContactPage() {
           </div>
 
           <form className="form-card" data-reveal style={{ ['--reveal-delay' as string]: '.08s' }} action="/api/enquiry" method="post">
+            {status && (
+              <p
+                className="form-note"
+                role="status"
+                style={{ color: status.tone === 'ok' ? 'var(--ok)' : 'var(--accent)', fontWeight: 600 }}
+              >
+                {status.text}
+              </p>
+            )}
+
+            {/* Honeypot: hidden from people, filled in by most form bots. */}
+            <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px' }}>
+              <label htmlFor="company">Company</label>
+              <input id="company" name="company" tabIndex={-1} autoComplete="off" />
+            </div>
+
             <div className="form-row">
               <div className="field">
                 <label htmlFor="c-first">First name *</label>
@@ -92,10 +122,12 @@ export default function ContactPage() {
             <button className="btn" type="submit">
               Submit
             </button>
-            <p className="form-note">
-              This form posts to <code>/api/enquiry</code>, which is scaffolded but not yet wired to a mailbox — see the
-              README for what to connect.
-            </p>
+            {!mailConfigured && (
+              <p className="form-note">
+                Note for the site owner: <code>SMTP_HOST</code> is not set, so messages are written to the server log
+                rather than emailed. See the README.
+              </p>
+            )}
           </form>
         </div>
       </section>

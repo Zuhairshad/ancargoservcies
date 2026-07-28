@@ -19,6 +19,12 @@ export default function BookingForm() {
 
   return (
     <form className="form-card" action={action}>
+      {/* Honeypot: hidden from people, filled in by most form bots. */}
+      <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px' }}>
+        <label htmlFor="company">Company</label>
+        <input id="company" name="company" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <div className="steps">
         {stepNames.map((name, i) => (
           <div key={name} data-state={i === step ? 'current' : i < step ? 'done' : 'todo'}>
@@ -42,7 +48,7 @@ export default function BookingForm() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="senderEmail">Email</label>
-            <input id="senderEmail" name="senderEmail" type="email" />
+            <input id="senderEmail" name="senderEmail" type="email" placeholder="For your booking receipt" />
           </div>
           <div className="field">
             <label htmlFor="senderCity">City *</label>

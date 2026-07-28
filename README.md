@@ -16,6 +16,7 @@ sizes, a 1376px content frame, and the same scroll-reveal (fade + 30px rise). Th
 - Inter self-hosted from `public/fonts` (no Google Fonts request, so no consent-banner question in the UK)
 - `qrcode` for the carton-label QR codes
 - **PostgreSQL** via `pg`, behind a store interface — see [Database](#database)
+- **SMTP** via `nodemailer`, behind a mailer interface — see [Email](#email)
 
 ## Running it
 
@@ -42,6 +43,11 @@ npm run typecheck            # tsc --noEmit
 | `ADMIN_PASSWORD`       | Gate for `/admin`. Staff area returns to the login page without it.     |
 | `NEXT_PUBLIC_SITE_URL` | Base URL encoded into carton QR codes. Defaults to the production domain. |
 | `DATABASE_URL`         | Postgres connection string. Falls back to an in-memory store when unset.  |
+| `SMTP_HOST`            | Mail server. Without it, messages are logged instead of sent.              |
+| `SMTP_PORT`            | 587 (STARTTLS) or 465 (implicit TLS). Defaults to 587.                     |
+| `SMTP_USER` / `SMTP_PASSWORD` | Mailbox credentials. Omit both for an unauthenticated relay.        |
+| `SMTP_FROM`            | From header. Defaults to `AN Cargo Services <info@ancargoservices.com>`.   |
+| `OFFICE_INBOX`         | Where enquiries and internal notifications go.                            |
 
 ## Pages
 
@@ -123,12 +129,55 @@ ordering), every write path, missing-reference handling, the concurrency
 guarantee above, and the schema's own constraints. **Destructive: it resets the
 schema first, so point it at a scratch database.**
 
+## Email
+
+`src/lib/mail.ts` exposes a `Mailer` interface with an SMTP implementation
+(`nodemailer`) and a logging fallback used when `SMTP_HOST` is unset. Bodies live
+in `src/lib/emails.ts` — plain text is the canonical version, with a light HTML
+wrapper. No images, no tracking pixels.
+
+| Trigger | Goes to | Contents |
+| --- | --- | --- |
+| Booking submitted | Customer, bcc office | Reference, summary, estimate, tracking link, "nothing is charged yet" |
+| Booking submitted with no email | Office only | Name and phone, so staff know to call |
+| Staff confirm freight | Customer | Final freight charge, note about destination duties |
+| Status reaches a milestone | Customer | New status, location, note, link to full history |
+| Contact form | Office, `Reply-To` the customer | Name, email, phone, message |
+| Newsletter sign-up | Office | The address, also stored in `subscribers` |
+
+Milestones that email are collected, departed, customs, out-for-delivery and
+delivered. `booked` and `at-hub` stay quiet — the receipt already covered the
+first, and the second is internal.
+
+Two deliberate behaviours:
+
+- **A failed send never breaks the action that triggered it.** `send()` catches,
+  logs and returns `{ delivered: false }`, so a dead mail server loses a
+  notification rather than a customer's booking.
+- **Public forms carry a honeypot** — a hidden `company` field. Bots fill it,
+  people do not; a filled field returns the success page without sending
+  anything.
+
+### Testing
+
+```bash
+npm run test:mail
+```
+
+32 checks against a real SMTP server started by the test itself — nothing leaves
+the machine. Asserts on the messages that actually arrive: recipients, `Reply-To`,
+that bcc stays out of the headers, multipart text + HTML, body contents, which
+statuses stay quiet, and that a dead server degrades instead of throwing.
+
 ## Known gaps
 
 Honest list of what is scaffolded but not finished:
 
-- **`/api/enquiry` and `/api/subscribe` log to the console** instead of sending mail. Point them at the
-  `info@ancargoservices.com` mailbox over SMTP, or a transactional provider.
+- **Email needs SMTP credentials.** The wiring is done and tested; it needs the real host, user and password for
+  the `info@ancargoservices.com` mailbox. Add SPF and DKIM records for the domain too, or receipts will land in
+  spam. Deliverability is a DNS job, not a code one.
+- **No unsubscribe link yet.** The `subscribers` table has an `unsubscribed` flag but nothing sets it. Needed
+  before any bulk send.
 - **Auth is a single shared password.** Fine for two or three people; replace with per-user accounts before more.
 - **Invoices are not sequentially numbered** and carry no NTN or GST registration. Both are needed before these
   go to customers — see the note at the bottom of the invoice template.
