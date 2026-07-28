@@ -15,15 +15,20 @@ sizes, a 1376px content frame, and the same scroll-reveal (fade + 30px rise). Th
 - Plain CSS — one design-system stylesheet, `src/app/globals.css`. No CSS framework.
 - Inter self-hosted from `public/fonts` (no Google Fonts request, so no consent-banner question in the UK)
 - `qrcode` for the carton-label QR codes
-- No database yet — see [Data layer](#data-layer)
+- **PostgreSQL** via `pg`, behind a store interface — see [Database](#database)
 
 ## Running it
 
 ```bash
 npm install
-cp .env.example .env.local   # then set ADMIN_PASSWORD
+cp .env.example .env.local   # set ADMIN_PASSWORD and DATABASE_URL
+npm run db:migrate           # create the tables
+npm run db:seed              # optional: three sample shipments
 npm run dev                  # http://localhost:3000
 ```
+
+Without `DATABASE_URL` the app still runs, on an in-memory store — useful for
+front-end work, but bookings vanish on restart and the staff area says so.
 
 ```bash
 npm run build && npm start   # production build
@@ -36,6 +41,7 @@ npm run typecheck            # tsc --noEmit
 | ---------------------- | ----------------------------------------------------------------------- |
 | `ADMIN_PASSWORD`       | Gate for `/admin`. Staff area returns to the login page without it.     |
 | `NEXT_PUBLIC_SITE_URL` | Base URL encoded into carton QR codes. Defaults to the production domain. |
+| `DATABASE_URL`         | Postgres connection string. Falls back to an in-memory store when unset.  |
 
 ## Pages
 
@@ -80,21 +86,47 @@ References are `ANCS-YYMM-NNNN` — readable over the phone, unique, and they so
 4. Staff add status updates; each one appears on the public timeline immediately.
 5. "Send update" opens WhatsApp with the status and tracking link pre-typed.
 
-## Data layer
+## Database
 
-`src/lib/store.ts` defines a `ShipmentStore` interface with a `MemoryStore` implementation seeded with three
-sample shipments (`ANCS-2607-0148`, `-0149`, `-0150`).
+Schema in `db/001_init.sql` — three tables:
 
-**Bookings work end to end, but nothing survives a server restart and nothing is shared between instances.**
-That is deliberate for this phase — it let the booking flow, admin screens, labels and tracking be built and
-demonstrated before the database exists. Swapping in Postgres means writing one more implementation of that
-interface; no page or component changes.
+- **`shipments`** — one row per consignment. Sender and receiver are stored as
+  columns rather than JSON so staff can search by name, phone or city when the
+  admin list grows a search box. Money and weight are `numeric`, not float.
+- **`shipment_events`** — the status history behind the public tracking timeline.
+  Cascades on delete.
+- **`ref_counters`** — one row per `YYMM` period holding the last sequence
+  issued. `create()` runs inside a transaction and upserts this row, which locks
+  it, so two simultaneous bookings can never be handed the same
+  `ANCS-YYMM-NNNN`. That is tested with twelve parallel `create()` calls.
+
+```bash
+npm run db:migrate   # apply db/*.sql in order (safe to re-run)
+npm run db:seed      # insert the three sample shipments, skipping any that exist
+npm run db:reset     # drop, migrate, seed — destructive
+npm run db:status    # table and row counts
+```
+
+`src/lib/store.ts` exposes a `ShipmentStore` interface with two implementations:
+`PostgresStore` (used when `DATABASE_URL` is set) and `MemoryStore` (the
+fallback). Pages and components only ever see the interface.
+
+### Testing
+
+```bash
+DATABASE_URL=postgres://…/scratch_db npm run test:db
+```
+
+31 integration checks against a real database — no mocks. Covers read mapping
+(`numeric` → number, `null` → `undefined`, dates to `YYYY-MM-DD`, event
+ordering), every write path, missing-reference handling, the concurrency
+guarantee above, and the schema's own constraints. **Destructive: it resets the
+schema first, so point it at a scratch database.**
 
 ## Known gaps
 
 Honest list of what is scaffolded but not finished:
 
-- **No database.** As above.
 - **`/api/enquiry` and `/api/subscribe` log to the console** instead of sending mail. Point them at the
   `info@ancargoservices.com` mailbox over SMTP, or a transactional provider.
 - **Auth is a single shared password.** Fine for two or three people; replace with per-user accounts before more.

@@ -1,14 +1,15 @@
 import { formatRef, type Shipment, type Status } from './shipments'
+import { createPool, PostgresStore } from './postgres-store'
 
 /**
- * Data layer. Everything the app does goes through this interface, so Phase 3
- * swaps MemoryStore for a Postgres implementation without touching a page or a
- * component.
+ * Data layer. Everything the app does goes through this interface, so the choice
+ * of backing store never reaches a page or a component.
  *
- * MemoryStore holds shipments for the lifetime of the server process: reads and
- * writes work, but nothing survives a restart or spans multiple instances. It is
- * here so the booking flow, admin screens, labels and tracking can be built and
- * demonstrated before the database exists — not as a production store.
+ * PostgresStore (src/lib/postgres-store.ts) is used whenever DATABASE_URL is set.
+ * MemoryStore is the fallback: reads and writes work for the lifetime of the
+ * server process, but nothing survives a restart or spans instances. It keeps
+ * front-end work possible without a database, and the staff area shows a warning
+ * whenever it is the one in use.
  */
 export interface ShipmentStore {
   list(): Promise<Shipment[]>
@@ -192,6 +193,28 @@ const seed: Shipment[] = [
  */
 const globalForStore = globalThis as unknown as { ancsStore?: ShipmentStore }
 
-export const store: ShipmentStore = globalForStore.ancsStore ?? new MemoryStore(seed)
+function selectStore(): ShipmentStore {
+  const url = process.env.DATABASE_URL
+  if (url) {
+    // The pool connects lazily on first query, so `next build` does not need the
+    // database to be reachable.
+    return new PostgresStore(createPool(url))
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    console.warn(
+      '[store] DATABASE_URL is not set — running on MemoryStore. Bookings will be lost on restart. See README.',
+    )
+  }
+  return new MemoryStore(seed)
+}
+
+export const store: ShipmentStore = globalForStore.ancsStore ?? selectStore()
 
 if (process.env.NODE_ENV !== 'production') globalForStore.ancsStore = store
+
+/** True when shipments are persisted. Drives the warning banner in the staff area. */
+export const isPersistent = Boolean(process.env.DATABASE_URL)
+
+/** Exported for tests and for seeding a fresh database. */
+export { MemoryStore, seed as sampleShipments }

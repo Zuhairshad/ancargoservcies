@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import AdminBar from '@/components/AdminBar'
-import { store } from '@/lib/store'
+import { isPersistent, store } from '@/lib/store'
 import { statusLabels } from '@/lib/shipments'
 import { modeLabels } from '@/data/rates'
 import { formatDate } from '@/lib/dates'
@@ -28,13 +28,14 @@ export default async function AdminPage() {
             <span className="stat-label">{shipments.length} on file</span>
           </div>
 
-          <div className="notice notice--dev">
-            <span>
-              <b>Shipments are held in memory in this scaffold.</b> Bookings work and persist while the server runs, but
-              they are cleared on restart. Phase 3 swaps <code>MemoryStore</code> for Postgres behind the same interface —
-              no page or component changes needed.
-            </span>
-          </div>
+          {!isPersistent && (
+            <div className="notice notice--dev">
+              <span>
+                <b>No database connected — shipments are held in memory.</b> Bookings work while the server runs but are
+                cleared on restart. Set <code>DATABASE_URL</code> and run <code>npm run db:migrate</code> to persist them.
+              </span>
+            </div>
+          )}
 
           <div className="table-wrap">
             <table className="data">

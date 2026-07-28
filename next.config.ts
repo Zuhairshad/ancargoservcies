@@ -3,6 +3,8 @@ import type { NextConfig } from 'next'
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // pg is a native-ish server package; leave it out of the bundle.
+  serverExternalPackages: ['pg'],
   async redirects() {
     // 301s from the WordPress URLs so 15 years of links and search ranking survive the move.
     return [
