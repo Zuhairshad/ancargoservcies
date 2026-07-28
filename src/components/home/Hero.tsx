@@ -16,13 +16,17 @@ export default function Hero() {
           sizes="(max-width: 860px) 100vw, 73vw"
           priority
         />
-        <Link className="hero__badge" href="/rates" data-reveal style={{ ['--reveal-delay' as string]: '.05s' }}>
-          Send gifts home at discounted freight rates <b>See Rates</b>
+        <Link className="hero__badge" href="/rates" data-rise style={{ ['--reveal-delay' as string]: '.05s' }}>
+          {/* Two lengths of the same line: the long one will not fit on one row
+              of a phone, and wrapping it turns the pill into a three-line blob. */}
+          <span className="hero__badge-wide">Send gifts home at discounted freight rates</span>
+          <span className="hero__badge-narrow">Discounted rates on gifts</span>
+          <b>See Rates</b>
         </Link>
-        <h1 className="h-hero" data-reveal style={{ ['--reveal-delay' as string]: '.15s' }}>
+        <h1 className="h-hero" data-rise style={{ ['--reveal-delay' as string]: '.15s' }}>
           Door to door, anywhere in the world.
         </h1>
-        <div data-reveal style={{ ['--reveal-delay' as string]: '.25s' }}>
+        <div data-rise style={{ ['--reveal-delay' as string]: '.25s' }}>
           <TrackForm />
         </div>
       </div>
@@ -42,7 +46,7 @@ export default function Hero() {
                 <Link
                   key={service.slug}
                   href={`/services/${service.slug}`}
-                  data-reveal
+                  data-rise
                   style={{ ['--reveal-delay' as string]: `${0.3 + i * 0.06}s` }}
                 >
                   {Icon && <Icon />}
@@ -51,7 +55,7 @@ export default function Hero() {
               )
             })}
           </div>
-          <p data-reveal style={{ ['--reveal-delay' as string]: '.54s' }}>
+          <p data-rise style={{ ['--reveal-delay' as string]: '.54s' }}>
             AN Cargo Services delivers safe packing, transparent pricing and right-time delivery for parcels, gifts,
             documents and commercial freight worldwide.
           </p>

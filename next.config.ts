@@ -5,6 +5,25 @@ const config: NextConfig = {
   poweredByHeader: false,
   // pg is a native-ish server package; leave it out of the bundle.
   serverExternalPackages: ['pg'],
+  async headers() {
+    // Anything under public/ is served with `max-age=0` by default, because the
+    // filenames are not content-hashed. For these two directories that default
+    // is wrong: every navigation was re-validating a megabyte of imagery.
+    return [
+      {
+        // Fonts are versioned by their filename and will never change contents.
+        source: '/fonts/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
+      {
+        // Images can be re-encoded under the same name, so they get a long but
+        // finite life: served from cache instantly, refreshed in the background,
+        // and fully expired within a month.
+        source: '/images/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=604800' }],
+      },
+    ]
+  },
   async redirects() {
     // 301s from the WordPress URLs so 15 years of links and search ranking survive the move.
     return [

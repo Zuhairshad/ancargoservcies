@@ -69,6 +69,13 @@ body {
 
 img, svg, video { display: block; max-width: 100%; }
 img { height: auto; }
+/* <picture> exists to negotiate a format, not to lay anything out. Without this
+   it becomes a block between a container and its image, breaking flex and grid
+   parents that expect the <img> to be their own child.
+   Note it cannot carry a percentage height: a box that is never generated gives
+   `height: 100%` nothing to resolve against, so images that fill a container
+   are positioned rather than sized — see the fill helper below. */
+picture { display: contents; }
 a { color: inherit; }
 button { font: inherit; }
 
@@ -94,6 +101,16 @@ button { font: inherit; }
   transition-delay: var(--reveal-delay, 0s);
 }
 [data-reveal].is-visible { opacity: 1; transform: none; }
+
+/* Above the fold there is nothing to wait for, so these run at first paint
+   instead of when the observer boots. Anything hidden behind hydration reads as
+   an empty hero for as long as the JavaScript takes to arrive, which on a phone
+   over a slow connection is the whole first impression. */
+[data-rise] { animation: rise 0.7s var(--ease) both; animation-delay: var(--reveal-delay, 0s); }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: none; }
+}
 
 /* ---------- typography ---------- */
 .h-hero, .h-title, .h-section, .h-sub {
@@ -237,14 +254,19 @@ button { font: inherit; }
 /* ---------- home: hero ---------- */
 .hero { display: grid; grid-template-columns: 1fr 27.1%; min-height: 730px; }
 .hero__main { position: relative; padding: var(--gutter); display: flex; flex-direction: column; justify-content: flex-end; gap: 1.75rem; color: #fff; overflow: hidden; }
-.hero__main > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero__main > img, .hero__main > picture > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; }
 .hero__main::after { content: ''; position: absolute; inset: 0; background: linear-gradient(190deg, rgba(0,0,0,0) 34%, rgba(0,0,0,0.22) 64%, rgba(0,0,0,0.58) 100%); }
-.hero__main > *:not(img) { position: relative; z-index: 1; }
+.hero__main > *:not(img):not(picture) { position: relative; z-index: 1; }
 .hero__main .h-hero { max-width: 17ch; }
-.hero__badge { align-self: flex-start; display: flex; align-items: center; gap: 0.625rem; background: rgba(255,255,255,0.95); color: var(--ink); border-radius: 100px; padding: 5px 5px 5px 16px; font-size: var(--t-small); text-decoration: none; }
-.hero__badge b { background: var(--ink); color: #fff; border-radius: 100px; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; }
+.hero__badge { align-self: flex-start; max-width: 100%; display: flex; align-items: center; gap: 0.625rem; background: rgba(255,255,255,0.95); color: var(--ink); border-radius: 100px; padding: 5px 5px 5px 16px; font-size: var(--t-small); text-decoration: none; }
+.hero__badge b { background: var(--ink); color: #fff; border-radius: 100px; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; flex: none; }
+.hero__badge-wide, .hero__badge-narrow { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hero__badge-narrow { display: none; }
 .hero__rail { background: var(--paper); display: grid; grid-template-rows: 344px 1fr; min-width: 0; }
-.hero__rail > img { width: 100%; height: 100%; object-fit: cover; object-position: 44% 50%; }
+/* The wrapper is the grid item here, so that it — rather than an unresolvable
+   percentage on the image — carries the row's height. */
+.hero__rail > picture { display: block; position: relative; }
+.hero__rail > picture > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 44% 50%; }
 .hero__rail-body { padding: 1.75rem; display: flex; flex-direction: column; gap: 1.5rem; }
 .hero__services { display: grid; gap: 1.125rem; }
 .hero__services a { display: flex; align-items: center; gap: 0.75rem; font-size: var(--t-card); font-weight: 600; letter-spacing: -0.02em; text-decoration: none; }
@@ -268,14 +290,15 @@ button { font: inherit; }
 .coverage__num { display: flex; align-items: flex-end; gap: 0.875rem; }
 .coverage__num .stat-label { padding-bottom: 0.9rem; }
 .coverage__card { position: relative; border-radius: var(--radius); overflow: hidden; aspect-ratio: 703 / 300; }
-.coverage__card img { width: 100%; height: 100%; object-fit: cover; }
+.coverage__card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .coverage__offices { position: absolute; top: 0; right: 0; background: var(--navy); color: #fff; padding: 1.25rem 1.5rem; border-bottom-left-radius: var(--radius); display: grid; gap: 0.45rem; text-align: right; }
 .coverage__offices b { font-size: var(--t-small); font-weight: 600; color: var(--eyebrow-dark); }
 .coverage__offices span { font-size: var(--t-small); color: rgba(255, 255, 255, 0.86); }
 
 /* ---------- home: stats split ---------- */
 .stats-split { display: grid; grid-template-columns: 45% 1fr; }
-.stats-split > img { width: 100%; height: 100%; object-fit: cover; min-height: 420px; }
+.stats-split > picture { display: block; position: relative; min-height: 420px; }
+.stats-split > picture > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .stats-split__panel { background: var(--paper); padding: clamp(2rem, 4.4vw, 4rem); display: grid; gap: 2.25rem; align-content: center; }
 .stats-split__panel .h-section { max-width: 26ch; }
 .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem 1.5rem; }
@@ -307,7 +330,7 @@ button { font: inherit; }
 .svc-card__top em { font-style: normal; font-size: var(--t-small); font-weight: 600; color: var(--eyebrow-dark); }
 .svc-card__top b { font-size: var(--t-card); font-weight: 600; letter-spacing: -0.02em; }
 .svc-card__img { position: relative; aspect-ratio: 420 / 190; overflow: hidden; }
-.svc-card__img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
+.svc-card__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
 .svc-card__img .arrow-btn { position: absolute; top: -24px; right: 1.375rem; z-index: 1; }
 .svc-card:hover .svc-card__img img { transform: scale(1.04); }
 .svc-card:hover .arrow-btn { background: var(--accent); color: var(--accent-ink); }
@@ -341,8 +364,8 @@ button { font: inherit; }
 .mission__panel blockquote { margin: 0; font-size: clamp(1.25rem, 2.1vw, 1.875rem); line-height: 1.2; letter-spacing: -0.04em; font-weight: 600; max-width: 30ch; }
 .mission__by b { display: block; font-size: 1.125rem; font-weight: 600; letter-spacing: -0.02em; }
 .mission__by span { font-size: var(--t-small); color: var(--body-2); }
-.mission__img { min-height: 340px; }
-.mission__img img { width: 100%; height: 100%; object-fit: cover; }
+.mission__img { position: relative; min-height: 340px; }
+.mission__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
 .centered { text-align: center; }
 .centered__in { display: grid; gap: 1.125rem; justify-items: center; max-width: 60ch; margin-inline: auto; }
@@ -373,8 +396,8 @@ button { font: inherit; }
   background: var(--white); border: 1px solid var(--line); border-radius: var(--radius);
   overflow: hidden; display: grid; align-content: start; text-decoration: none;
 }
-.card__img { aspect-ratio: 9 / 5; overflow: hidden; }
-.card__img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
+.card__img { position: relative; aspect-ratio: 9 / 5; overflow: hidden; }
+.card__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
 .card:hover .card__img img { transform: scale(1.04); }
 .card__body { padding: 1.125rem 1.25rem 1.375rem; display: grid; gap: 0.4rem; }
 .card__body em { font-style: normal; font-size: var(--t-small); font-weight: 600; color: var(--accent); }
@@ -387,7 +410,7 @@ button { font: inherit; }
 
 /* ---------- service detail ---------- */
 .detail-hero { position: relative; min-height: clamp(260px, 32vw, 420px); display: grid; place-items: center; text-align: center; color: #fff; padding: var(--band) var(--gutter); overflow: hidden; }
-.detail-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.detail-hero > img, .detail-hero > picture > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .detail-hero::after { content: ''; position: absolute; inset: 0; background: rgba(3, 27, 43, 0.62); }
 .detail-hero__in { position: relative; z-index: 1; display: grid; gap: 1rem; justify-items: center; max-width: 60ch; }
 .detail-hero__in .lead { color: rgba(255, 255, 255, 0.86); max-width: 48ch; }
@@ -399,7 +422,7 @@ button { font: inherit; }
 .detail-aside__nav a:hover { background: #efefef; }
 .detail-aside__nav a[aria-current='page'] { background: var(--white); box-shadow: inset 0 0 0 1px var(--line); }
 .detail-aside__nav svg { width: 17px; height: 17px; flex: none; color: var(--accent); }
-.detail-aside > img { border-radius: var(--radius); width: 100%; }
+.detail-aside > img, .detail-aside > picture > img { border-radius: var(--radius); width: 100%; }
 
 /* ---------- rates ---------- */
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
@@ -667,7 +690,7 @@ table.data td.num { font-variant-numeric: tabular-nums; }
   .coverage, .stats-split, .mission, .split-head, .quotes, .site-footer__top, .detail-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .svc-cards, .card-grid, .tiles--three { grid-template-columns: repeat(2, 1fr); }
-  .stats-split > img { min-height: 300px; }
+  .stats-split > picture { min-height: 300px; }
   .gallery { grid-template-columns: repeat(3, 1fr); }
   .tool__grid { grid-template-columns: repeat(2, 1fr); }
   .plans { grid-template-columns: 1fr; }
@@ -682,8 +705,15 @@ table.data td.num { font-variant-numeric: tabular-nums; }
   .site-header__burger { display: grid; }
   .site-header__right .btn { display: none; }
   .hero { grid-template-columns: 1fr; min-height: 0; }
-  .hero__main { min-height: 520px; }
-  .hero__rail { grid-template-rows: 220px 1fr; }
+  .hero__main { min-height: 500px; padding: 1.25rem; gap: 1.375rem; }
+  /* Below 860px the photo is the portrait crop from the manifest, so the frame
+     is filled rather than letterboxed with sky. */
+  .hero__main > img, .hero__main > picture > img { object-position: 50% 50%; }
+  .hero__rail { grid-template-rows: 190px 1fr; }
+  /* A short, wide crop of a near-square photo: sit it high enough to keep the
+     supervisor's head in frame. */
+  .hero__rail > picture > img { object-position: 44% 32%; }
+  .hero__rail-body { padding: 1.5rem 1.25rem; }
   .tiles, .tiles--three, .svc-cards, .card-grid, .card-grid--two, .accordion, .form-row { grid-template-columns: 1fr; }
   .partners { grid-template-columns: 1fr 1fr; }
   .partners > div:nth-child(2n) { border-right: 0; }
@@ -695,6 +725,10 @@ table.data td.num { font-variant-numeric: tabular-nums; }
 }
 
 @media (max-width: 560px) {
+  .hero__badge { padding: 4px 4px 4px 13px; gap: 0.5rem; }
+  .hero__badge-wide { display: none; }
+  .hero__badge-narrow { display: block; }
+  .hero__badge b { padding: 6px 10px; font-size: 0.6875rem; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .tool__grid { grid-template-columns: 1fr; }
   .inline-field { flex-wrap: wrap; }
@@ -706,5 +740,6 @@ table.data td.num { font-variant-numeric: tabular-nums; }
 
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  [data-rise] { animation: none !important; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
