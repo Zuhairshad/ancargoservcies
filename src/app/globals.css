@@ -174,15 +174,17 @@ button { font: inherit; }
 /* ---------- header ---------- */
 .site-header { background: var(--white); border-bottom: 1px solid var(--line); position: relative; z-index: 30; }
 .site-header__in { display: flex; align-items: center; gap: 1.5rem; height: 96px; }
-.site-header__nav { display: flex; gap: clamp(1.25rem, 2.5vw, 2.75rem); font-size: var(--t-body); font-weight: 500; }
-.site-header__nav a { text-decoration: none; transition: opacity 0.2s; }
+.site-header__nav { display: flex; flex: 0 0 auto; gap: clamp(1.25rem, 2.5vw, 2.75rem); font-size: var(--t-body); font-weight: 500; }
+.site-header__nav a { text-decoration: none; white-space: nowrap; transition: opacity 0.2s; }
 .site-header__nav a:hover { opacity: 0.6; }
 .site-header__nav a[aria-current='page'] { color: var(--accent); }
 .site-header__logo { margin-inline: auto; display: flex; align-items: center; text-decoration: none; }
 .site-header__logo img { height: 62px; width: auto; }
 .site-header__right { display: flex; align-items: center; gap: clamp(1.25rem, 2.5vw, 2.75rem); }
 .site-header__more { position: relative; }
-.site-header__more > span { display: inline-flex; align-items: center; gap: 0.3rem; cursor: default; }
+.site-header__more > span { display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; cursor: default; }
+/* The icon carries no intrinsic width, so as a flex item it would collapse to 0. */
+.site-header__more > span svg { width: 11px; height: 11px; flex: none; }
 .site-header__dropdown {
   position: absolute; top: calc(100% + 0.75rem); right: 0; min-width: 200px;
   background: var(--white); border: 1px solid var(--line); border-radius: var(--radius);
@@ -191,7 +193,7 @@ button { font: inherit; }
 }
 .site-header__more:hover .site-header__dropdown,
 .site-header__more:focus-within .site-header__dropdown { display: flex; }
-.site-header__dropdown a { padding: 0.5rem 0.75rem; border-radius: 4px; font-size: var(--t-small); }
+.site-header__dropdown a { padding: 0.5rem 0.75rem; border-radius: 4px; font-size: var(--t-small); white-space: nowrap; }
 .site-header__dropdown a:hover { background: var(--paper); opacity: 1; }
 .site-header__burger {
   display: none; width: 44px; height: 44px; place-items: center;
