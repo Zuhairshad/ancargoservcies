@@ -713,15 +713,15 @@ table.data td.num { font-variant-numeric: tabular-nums; }
   .site-header__burger { display: grid; }
   .site-header__right .btn { display: none; }
   .hero { grid-template-columns: 1fr; min-height: 0; }
-  .hero__main { min-height: 500px; padding: 1.25rem; gap: 1.375rem; }
-  /* Below 860px the photo is the portrait crop from the manifest, so the frame
-     is filled rather than letterboxed with sky. */
+  .hero__main { min-height: 480px; padding: 1.25rem; gap: 1.25rem; }
   .hero__main > img, .hero__main > picture > img { object-position: 50% 50%; }
-  .hero__rail { grid-template-rows: 190px 1fr; }
-  /* A short, wide crop of a near-square photo: sit it high enough to keep the
-     supervisor's head in frame. */
-  .hero__rail > picture > img { object-position: 44% 32%; }
-  .hero__rail-body { padding: 1.5rem 1.25rem; }
+  /* The supervisor photo strip adds nothing on a narrow screen — remove it so
+     the rail is only the services list, keeping the mobile hero compact. */
+  .hero__rail { grid-template-rows: 1fr; }
+  .hero__rail > picture { display: none; }
+  .hero__rail-body { padding: 1.25rem; gap: 1rem; }
+  .hero__services { gap: 0.875rem; }
+  .hero__rail-body p { padding-top: 1rem; }
   .tiles, .tiles--three, .svc-cards, .card-grid, .card-grid--two, .accordion, .form-row { grid-template-columns: 1fr; }
   .partners { grid-template-columns: 1fr 1fr; }
   .partners > div:nth-child(2n) { border-right: 0; }
