@@ -46,9 +46,9 @@ export default function ServicesBand() {
               <div className="svc-card__top">
                 <em>{String(i + 1).padStart(2, '0')}</em>
                 <b>{service.name}</b>
+                <ArrowCircle />
               </div>
               <div className="svc-card__img">
-                <ArrowCircle />
                 <Photo
                   src={service.card}
                   alt=""

@@ -334,12 +334,12 @@ html.js [data-reveal]:not(.is-visible) { opacity: 0; transform: translateY(30px)
 .split-head__body { display: grid; gap: 1.25rem; justify-items: start; }
 .svc-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2.5rem; }
 .svc-card { background: var(--navy-deep); border-radius: var(--radius); overflow: hidden; display: grid; grid-template-rows: auto 1fr; text-decoration: none; color: #fff; }
-.svc-card__top { padding: 1.375rem 1.375rem 1.125rem; display: grid; gap: 0.5rem; }
+.svc-card__top { padding: 1.375rem 1.375rem 1.125rem; display: grid; gap: 0.5rem; position: relative; }
 .svc-card__top em { font-style: normal; font-size: var(--t-small); font-weight: 600; color: var(--eyebrow-dark); }
 .svc-card__top b { font-size: var(--t-card); font-weight: 600; letter-spacing: -0.02em; }
+.svc-card__top .arrow-btn { position: absolute; bottom: -24px; right: 1.375rem; z-index: 2; }
 .svc-card__img { position: relative; aspect-ratio: 420 / 190; overflow: hidden; }
 .svc-card__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
-.svc-card__img .arrow-btn { position: absolute; top: -24px; right: 1.375rem; z-index: 1; }
 .svc-card:hover .svc-card__img img { transform: scale(1.04); }
 .svc-card:hover .arrow-btn { background: var(--accent); color: var(--accent-ink); }
 .svc-card:hover .arrow-btn svg { transform: translateX(2px); }
