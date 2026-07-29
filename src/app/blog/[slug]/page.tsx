@@ -42,18 +42,18 @@ export default async function PostPage({ params }: Params) {
     <>
       <section className="page-hero">
         <div className="frame page-hero__in">
-          <p className="post-meta" data-reveal>
+          <p className="post-meta" data-rise>
             <span>{formatDate(post.date)}</span>
             <span>{post.readingTime}</span>
           </p>
-          <h1 className="h-title" data-reveal style={{ ['--reveal-delay' as string]: '.06s' }}>
+          <h1 className="h-title" data-rise style={{ ['--reveal-delay' as string]: '.06s' }}>
             {post.title}
           </h1>
         </div>
       </section>
 
-      <div className="page-hero__banner" data-reveal>
-        <Photo src={post.image} alt=""  sizes="100vw" priority />
+      <div className="page-hero__banner" data-rise>
+        <Photo src={post.image} alt="" sizes="(min-width: 1376px) 1312px, calc(100vw - 2rem)" priority />
       </div>
 
       <section className="band">

@@ -12,7 +12,10 @@ type Props = {
   /** Viewport-relative rendered width, so the browser can pick a candidate. */
   sizes: string
   className?: string
+  /** The page's LCP image. At most one per page: it alone gets fetchPriority high. */
   priority?: boolean
+  /** Above the fold but not the LCP — load immediately, without competing for bandwidth. */
+  eager?: boolean
 }
 
 /**
@@ -27,12 +30,13 @@ type Props = {
  * Everything is WebP. AVIF was measured and rejected — matching WebP q88's
  * high-frequency detail took AVIF q82-q90, which produced larger files.
  */
-export default function Photo({ src, alt, sizes, className, priority }: Props) {
+export default function Photo({ src, alt, sizes, className, priority, eager }: Props) {
   const entry = images[src]
+  const loading = priority || eager ? 'eager' : 'lazy'
 
   if (!entry) {
     // Unlisted image: serve it plainly rather than guessing a size.
-    return <img className={className} src={src} alt={alt} loading={priority ? 'eager' : 'lazy'} />
+    return <img className={className} src={src} alt={alt} loading={loading} />
   }
 
   const base = src.replace(/\.webp$/, '')
@@ -56,7 +60,7 @@ export default function Photo({ src, alt, sizes, className, priority }: Props) {
         alt={alt}
         width={entry.w}
         height={entry.h}
-        loading={priority ? 'eager' : 'lazy'}
+        loading={loading}
         fetchPriority={priority ? 'high' : undefined}
         decoding={priority ? 'sync' : 'async'}
       />

@@ -13,14 +13,14 @@ export default function TrackPage() {
     <>
       <section className="track-hero">
         <div className="frame track-hero__in">
-          <h1 className="h-title" data-reveal>
+          <h1 className="h-title" data-rise>
             Track your shipment.
           </h1>
-          <p className="lead lead--onDark" data-reveal style={{ ['--reveal-delay' as string]: '.06s' }}>
+          <p className="lead lead--onDark" data-rise style={{ ['--reveal-delay' as string]: '.06s' }}>
             Enter the reference from your receipt or carton label. It looks like ANCS-2607-0148. You can also scan the QR
             code on the label with any phone camera.
           </p>
-          <div data-reveal style={{ ['--reveal-delay' as string]: '.12s' }}>
+          <div data-rise style={{ ['--reveal-delay' as string]: '.12s' }}>
             <TrackForm autoFocus />
           </div>
         </div>

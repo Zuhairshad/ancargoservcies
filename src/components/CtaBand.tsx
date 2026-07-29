@@ -9,7 +9,10 @@ export default function CtaBand({
 }: Props) {
   return (
     <section className="band band--navy cta">
-      <img className="cta__mark" src="/images/mark.svg" alt="" aria-hidden="true" />
+      {/* Lazy so React does not preload it: this band is always below the fold,
+          and the mark is display:none under 860px, which would preload a file
+          the page never paints. */}
+      <img className="cta__mark" src="/images/mark.svg" alt="" aria-hidden="true" loading="lazy" />
       <div className="frame cta__in">
         <h2 className="h-title" data-reveal>
           {title}

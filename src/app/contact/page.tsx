@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
+import EnquiryNotice from '@/components/EnquiryNotice'
 import PageHero from '@/components/PageHero'
 import CtaBand from '@/components/CtaBand'
 import { offices, site, whatsappLink } from '@/data/site'
@@ -9,20 +11,7 @@ export const metadata: Metadata = {
   description: 'Contact AN Cargo Services in Faisalabad, Lahore, Karachi, Manchester, Dubai or Saudi Arabia.',
 }
 
-type Props = { searchParams: Promise<{ sent?: string }> }
-
-const feedback: Record<string, { tone: 'ok' | 'bad'; text: string }> = {
-  ok: { tone: 'ok', text: 'Thank you — your message is with our team. We usually reply the same working day.' },
-  queued: {
-    tone: 'ok',
-    text: 'Thank you — your message was received. If you need an answer urgently, WhatsApp is faster.',
-  },
-  invalid: { tone: 'bad', text: 'Please add your name, a valid email address and a message, then send again.' },
-}
-
-export default async function ContactPage({ searchParams }: Props) {
-  const { sent } = await searchParams
-  const status = sent ? feedback[sent] : undefined
+export default function ContactPage() {
   const head = offices.find((o) => o.head)!
 
   return (
@@ -79,15 +68,9 @@ export default async function ContactPage({ searchParams }: Props) {
           </div>
 
           <form className="form-card" data-reveal style={{ ['--reveal-delay' as string]: '.08s' }} action="/api/enquiry" method="post">
-            {status && (
-              <p
-                className="form-note"
-                role="status"
-                style={{ color: status.tone === 'ok' ? 'var(--ok)' : 'var(--accent)', fontWeight: 600 }}
-              >
-                {status.text}
-              </p>
-            )}
+            <Suspense fallback={null}>
+              <EnquiryNotice />
+            </Suspense>
 
             {/* Honeypot: hidden from people, filled in by most form bots. */}
             <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px' }}>

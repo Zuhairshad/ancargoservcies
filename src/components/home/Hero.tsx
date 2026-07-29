@@ -36,7 +36,7 @@ export default function Hero() {
           src="/images/hero-rail.webp"
           alt="Warehouse supervisor checking a consignment"
           sizes="(max-width: 860px) 100vw, 27vw"
-          priority
+          eager
         />
         <div className="hero__rail-body">
           <div className="hero__services">

@@ -31,7 +31,9 @@ export default function Reveal() {
     )
 
     items.forEach((el) => {
-      // Anything already on screen at first paint reveals immediately.
+      // The inline script has already revealed what was in the viewport at load.
+      if (el.classList.contains('is-visible')) return
+      // Anything on screen by the time this runs reveals immediately too.
       const top = el.getBoundingClientRect().top
       if (top < window.innerHeight * 0.92) el.classList.add('is-visible')
       else io.observe(el)

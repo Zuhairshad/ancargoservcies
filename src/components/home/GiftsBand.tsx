@@ -5,9 +5,9 @@ export default function GiftsBand() {
     <section className="band centered">
       <div className="frame centered__in">
         <div className="avatars" aria-hidden="true" data-reveal>
-          <img src="/images/avatar-1.webp" alt="" width={42} height={42} />
-          <img src="/images/avatar-2.webp" alt="" width={42} height={42} />
-          <img src="/images/avatar-3.webp" alt="" width={42} height={42} />
+          <img src="/images/avatar-1.webp" alt="" width={42} height={42} loading="lazy" />
+          <img src="/images/avatar-2.webp" alt="" width={42} height={42} loading="lazy" />
+          <img src="/images/avatar-3.webp" alt="" width={42} height={42} loading="lazy" />
         </div>
         <h2 className="h-section" data-reveal style={{ ['--reveal-delay' as string]: '.06s' }}>
           Send gifts, parcels and documents home.

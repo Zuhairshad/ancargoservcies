@@ -5,7 +5,6 @@
    1376px frame. Palette is ANCS navy and red.
    ========================================================================== */
 
-@font-face { font-family: 'Inter'; src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Inter'; src: url('/fonts/inter-latin-500-normal.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Inter'; src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Inter'; src: url('/fonts/inter-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
@@ -93,23 +92,32 @@ button { font: inherit; }
 .band--navy { background: var(--navy); color: #fff; }
 .band--deep { background: var(--navy-deep); color: #fff; }
 
-/* ---------- scroll reveal (matches Transo: fade + 30px rise) ---------- */
+/* ---------- scroll reveal (matches Transo: fade + 30px rise) ----------
+   Content is visible by default. The hidden state is gated behind html.js,
+   which an inline script adds only after it has already revealed everything in
+   the viewport — so a slow, failed or disabled bundle cannot leave the page
+   blank, and nothing above the fold is ever hidden waiting for hydration.
+   The transition lives on the base rule so it applies in both directions. */
 [data-reveal] {
-  opacity: 0;
-  transform: translateY(30px);
   transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
   transition-delay: var(--reveal-delay, 0s);
 }
+html.js [data-reveal]:not(.is-visible) { opacity: 0; transform: translateY(30px); }
 [data-reveal].is-visible { opacity: 1; transform: none; }
 
 /* Above the fold there is nothing to wait for, so these run at first paint
    instead of when the observer boots. Anything hidden behind hydration reads as
    an empty hero for as long as the JavaScript takes to arrive, which on a phone
    over a slow connection is the whole first impression. */
-[data-rise] { animation: rise 0.7s var(--ease) both; animation-delay: var(--reveal-delay, 0s); }
+/* Movement only, deliberately no fade. These elements are above the fold, and
+   `both` fill-mode holds the opening frame for the length of the stagger delay —
+   so animating opacity from 0 would leave the page's heading unreadable for up
+   to half a second on every route. Sliding keeps the entrance without ever
+   making text invisible. */
+[data-rise] { animation: rise 0.6s var(--ease) both; animation-delay: var(--reveal-delay, 0s); }
 @keyframes rise {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: none; }
+  from { transform: translateY(30px); }
+  to { transform: none; }
 }
 
 /* ---------- typography ---------- */
