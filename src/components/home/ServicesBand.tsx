@@ -93,10 +93,11 @@ export default function ServicesBand() {
         </div>
 
         <div className="partners" data-reveal>
-          <div>{site.shortName} Network</div>
-          {site.couriers.map((c) => (
-            <div key={c}>{c}</div>
-          ))}
+          <div><img src="/images/logo.webp" alt="ANCS Network" className="partner-logo" /></div>
+          <div><img src="/images/logos/dhl.svg" alt="DHL" className="partner-logo" /></div>
+          <div><img src="/images/logos/fedex.svg" alt="FedEx" className="partner-logo" /></div>
+          <div><img src="/images/logos/ups.svg" alt="UPS" className="partner-logo" /></div>
+          <div><img src="/images/logos/aramex.svg" alt="Aramex" className="partner-logo" /></div>
         </div>
       </div>
     </section>

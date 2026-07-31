@@ -264,7 +264,7 @@ html.js [data-reveal]:not(.is-visible) { opacity: 0; transform: translateY(30px)
 .hero__main { position: relative; padding: var(--gutter); display: flex; flex-direction: column; justify-content: flex-end; gap: 1.75rem; color: #fff; overflow: hidden; }
 .hero__main > img, .hero__main > picture > img, .hero__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; }
 .hero__main::after { content: ''; position: absolute; inset: 0; background: linear-gradient(190deg, rgba(0,0,0,0) 34%, rgba(0,0,0,0.22) 64%, rgba(0,0,0,0.58) 100%); }
-.hero__main > *:not(img):not(picture) { position: relative; z-index: 1; }
+.hero__main > *:not(img):not(picture):not(video) { position: relative; z-index: 1; }
 .hero__main .h-hero { max-width: 17ch; }
 .hero__badge { align-self: flex-start; max-width: 100%; display: flex; align-items: center; gap: 0.625rem; background: rgba(255,255,255,0.95); color: var(--ink); border-radius: 100px; padding: 5px 5px 5px 16px; font-size: var(--t-small); text-decoration: none; }
 .hero__badge b { background: var(--ink); color: #fff; border-radius: 100px; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; flex: none; }
@@ -362,9 +362,9 @@ html.js [data-reveal]:not(.is-visible) { opacity: 0; transform: translateY(30px)
 .byline span { font-size: var(--t-small); color: rgba(255, 255, 255, 0.4); }
 
 .partners { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: var(--radius); margin-top: clamp(2.5rem, 4vw, 3.5rem); overflow: hidden; }
-.partners > div { padding: 1.5rem 0.75rem; text-align: center; font-size: 1rem; font-weight: 600; letter-spacing: -0.02em; color: rgba(255, 255, 255, 0.55); border-right: 1px solid rgba(255, 255, 255, 0.16); }
+.partners > div { padding: 1.25rem 1rem; display: flex; align-items: center; justify-content: center; border-right: 1px solid rgba(255, 255, 255, 0.16); background: #fff; }
 .partners > div:last-child { border-right: 0; }
-.partners > div:first-child { color: #fff; }
+.partner-logo { height: 36px; width: auto; max-width: 90%; object-fit: contain; display: block; }
 
 /* ---------- mission + collaboration ---------- */
 .mission { display: grid; grid-template-columns: 1fr 1fr; }
