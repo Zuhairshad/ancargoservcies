@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { featuredServices } from '@/data/services'
 import { serviceIcons } from '@/components/Icons'
 import TrackForm from '@/components/TrackForm'
+import Photo from '@/components/Photo'
 
 export default function Hero() {
   const railServices = featuredServices
