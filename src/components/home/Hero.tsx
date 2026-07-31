@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { featuredServices } from '@/data/services'
 import { serviceIcons } from '@/components/Icons'
 import TrackForm from '@/components/TrackForm'
-import Photo from '@/components/Photo'
 
 export default function Hero() {
   const railServices = featuredServices
@@ -10,12 +9,17 @@ export default function Hero() {
   return (
     <section className="hero">
       <div className="hero__main">
-        <Photo
-          src="/images/hero-highway.webp"
-          alt="Freight moving along an open highway"
-          sizes="(max-width: 860px) 100vw, 73vw"
-          priority
-        />
+        <video
+          className="hero__video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/images/hero-highway-1280.webp"
+        >
+          <source src="/videos/hero.webm" type="video/webm" />
+          <source src="/videos/hero-720.mp4" type="video/mp4" />
+        </video>
         <Link className="hero__badge" href="/rates" data-rise style={{ ['--reveal-delay' as string]: '.05s' }}>
           {/* Two lengths of the same line: the long one will not fit on one row
               of a phone, and wrapping it turns the pill into a three-line blob. */}

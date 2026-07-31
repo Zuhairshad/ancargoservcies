@@ -16,10 +16,11 @@ const config: NextConfig = {
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
       {
-        // Images can be re-encoded under the same name, so they get a long but
-        // finite life: served from cache instantly, refreshed in the background,
-        // and fully expired within a month.
         source: '/images/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=604800' }],
+      },
+      {
+        source: '/videos/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=604800' }],
       },
     ]
