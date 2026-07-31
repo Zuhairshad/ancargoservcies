@@ -32,7 +32,7 @@ export default async function BookingConfirmedPage({ params }: Params) {
 
       <section className="band">
         <div className="frame stack--lg" style={{ display: 'grid' }}>
-          <div className="summary-grid" data-reveal>
+          <div className="summary-grid">
             <div>
               <span>Collection from</span>
               <b>
@@ -65,14 +65,14 @@ export default async function BookingConfirmedPage({ params }: Params) {
             </div>
           </div>
 
-          <div className="notice" data-reveal>
+          <div className="notice">
             <span>
               <b>Nothing is charged yet.</b> We weigh the consignment at collection and confirm the freight figure before
               it moves. The estimate above is based on the weight you entered.
             </span>
           </div>
 
-          <div className="row" data-reveal>
+          <div className="row">
             <Link className="btn" href={`/track/${shipment.ref}`}>
               Track this shipment
             </Link>

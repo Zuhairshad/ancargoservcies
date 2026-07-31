@@ -74,7 +74,7 @@ export default async function TrackRefPage({ params }: Params) {
 
       <section className="band">
         <div className="frame stack--xl" style={{ display: 'grid' }}>
-          <div className="summary-grid" data-reveal>
+          <div className="summary-grid">
             <div>
               <span>Pieces</span>
               <b>{shipment.pieces}</b>
@@ -103,7 +103,7 @@ export default async function TrackRefPage({ params }: Params) {
             </div>
           </div>
 
-          <div className="stack" data-reveal>
+          <div className="stack">
             <h2 className="h-section">Progress</h2>
             <ol className="timeline">
               {statuses.map((status) => {
@@ -129,7 +129,7 @@ export default async function TrackRefPage({ params }: Params) {
             </ol>
           </div>
 
-          <div className="row" data-reveal>
+          <div className="row">
             <a
               className="btn btn--wa"
               href={whatsappLink(`Hello ${site.shortName}, I am asking about shipment ${shipment.ref}.`)}
@@ -145,7 +145,7 @@ export default async function TrackRefPage({ params }: Params) {
           </div>
 
           {!shipment.confirmed && (
-            <div className="notice" data-reveal>
+            <div className="notice">
               <span>
                 <b>This booking is not confirmed yet.</b> Our team weighs the consignment and confirms the freight charge
                 before it moves. You will receive the invoice once it is confirmed.
