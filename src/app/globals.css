@@ -297,7 +297,8 @@ html.js [data-reveal]:not(.is-visible) { opacity: 0; transform: translateY(30px)
 .coverage__pin[data-flip='true'] { flex-direction: row-reverse; }
 .coverage__num { display: flex; align-items: flex-end; gap: 0.875rem; }
 .coverage__num .stat-label { padding-bottom: 0.9rem; }
-.coverage__card { position: relative; border-radius: var(--radius); overflow: hidden; aspect-ratio: 703 / 300; }
+.coverage__card { position: relative; border-radius: var(--radius); overflow: hidden; min-height: 320px; }
+.coverage__card picture { position: absolute; inset: 0; display: block; }
 .coverage__card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .coverage__offices { position: absolute; top: 0; right: 0; background: var(--navy); color: #fff; padding: 1.25rem 1.5rem; border-bottom-left-radius: var(--radius); display: grid; gap: 0.45rem; text-align: right; }
 .coverage__offices b { font-size: var(--t-small); font-weight: 600; color: var(--eyebrow-dark); }
