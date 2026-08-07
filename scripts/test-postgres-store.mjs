@@ -36,6 +36,16 @@ execFileSync(process.execPath, ['scripts/db.mjs', 'reset'], { stdio: 'pipe', env
 const pool = new pg.Pool({ connectionString: url })
 const store = new PostgresStore(pool)
 
+// References are ANCS-YYMM-NNNN against the current month, and the counter
+// restarts each month. Derive both from today rather than hardcoding a period,
+// which would make these assertions fail on the first of every month.
+const now = new Date()
+const period = `${String(now.getFullYear()).slice(2)}${String(now.getMonth() + 1).padStart(2, '0')}`
+const seqBefore = Number(
+  (await pool.query('select last_seq from ref_counters where period = $1', [period])).rows[0]?.last_seq ?? 0,
+)
+const seq = (n) => `ANCS-${period}-${String(n).padStart(4, '0')}`
+
 try {
   console.log('\nreads')
   const all = await store.list()
@@ -80,7 +90,7 @@ try {
     estimatePkr: 6875,
     pickupDate: '2026-08-01',
   })
-  check('create() issues the next reference in sequence', created.ref === 'ANCS-2607-0151', created.ref)
+  check('create() issues the next reference in sequence', created.ref === seq(seqBefore + 1), `${created.ref} (expected ${seq(seqBefore + 1)})`)
   check('create() starts as booked and unconfirmed', created.status === 'booked' && created.confirmed === false)
   check('create() writes an opening event', created.events.length === 1 && created.events[0].status === 'booked')
   check('create() keeps the estimate', created.estimatePkr === 6875)
@@ -119,8 +129,8 @@ try {
   check('12 simultaneous bookings get 12 distinct references', new Set(refs).size === 12, refs.join(' '))
   check(
     'references stay contiguous',
-    seqs.join(',') === Array.from({ length: 12 }, (_, i) => 152 + i).join(','),
-    seqs.join(','),
+    seqs.join(',') === Array.from({ length: 12 }, (_, i) => seqBefore + 2 + i).join(','),
+    `${seqs.join(',')} (expected ${Array.from({ length: 12 }, (_, i) => seqBefore + 2 + i).join(',')})`,
   )
   const afterBulk = await store.list()
   check('all 12 are persisted', afterBulk.length === 16, String(afterBulk.length))

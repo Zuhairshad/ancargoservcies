@@ -26,19 +26,58 @@ const pool = new pg.Pool({
   ssl: /sslmode=(require|verify)/.test(url) ? { rejectUnauthorized: false } : undefined,
 })
 
+/**
+ * Applies db/*.sql in filename order, once each.
+ *
+ * Every file is wrapped in a transaction, so a statement that fails half way
+ * through leaves nothing behind, and each is recorded in schema_migrations so a
+ * second run is a no-op. The existing files are all `create ... if not exists`
+ * and would survive being replayed, but the first `alter table` or `insert`
+ * added to this directory would not.
+ */
 async function migrate() {
+  await pool.query(`
+    create table if not exists schema_migrations (
+      filename   text        primary key,
+      applied_at timestamptz not null default now()
+    )`)
+
   const dir = path.join(root, 'db')
   const files = readdirSync(dir).filter((f) => f.endsWith('.sql')).sort()
+  const { rows } = await pool.query('select filename from schema_migrations')
+  const applied = new Set(rows.map((r) => r.filename))
+
+  let count = 0
   for (const file of files) {
+    if (applied.has(file)) {
+      console.log(`  ${file} already applied, skipped`)
+      continue
+    }
     process.stdout.write(`  applying ${file} … `)
-    await pool.query(readFileSync(path.join(dir, file), 'utf8'))
-    console.log('ok')
+    const client = await pool.connect()
+    try {
+      await client.query('begin')
+      await client.query(readFileSync(path.join(dir, file), 'utf8'))
+      await client.query('insert into schema_migrations (filename) values ($1)', [file])
+      await client.query('commit')
+      console.log('ok')
+      count++
+    } catch (error) {
+      await client.query('rollback')
+      console.log('failed, rolled back')
+      throw error
+    } finally {
+      client.release()
+    }
   }
+  console.log(count === 0 ? '  database already up to date' : `  ${count} migration(s) applied`)
 }
 
+const TABLES = ['shipment_events', 'shipments', 'ref_counters', 'subscribers', 'schema_migrations']
+
 async function drop() {
-  await pool.query('drop table if exists shipment_events, shipments, ref_counters cascade')
-  console.log('  tables dropped')
+  await pool.query(`drop table if exists ${TABLES.join(', ')} cascade`)
+  console.log(`  dropped: ${TABLES.join(', ')}`)
 }
 
 /**
@@ -126,12 +165,21 @@ async function seed() {
 }
 
 async function status() {
-  const { rows } = await pool.query(`
-    select 'shipments' as table, count(*)::int as rows from shipments
-    union all select 'shipment_events', count(*)::int from shipment_events
-    union all select 'ref_counters', count(*)::int from ref_counters
-    order by 1`)
-  for (const r of rows) console.log(`  ${r.table.padEnd(16)} ${r.rows}`)
+  const { rows: present } = await pool.query(
+    `select tablename from pg_tables where schemaname = 'public' and tablename = any($1)`,
+    [TABLES],
+  )
+  const found = present.map((r) => r.tablename).sort()
+  const missing = TABLES.filter((t) => !found.includes(t)).sort()
+
+  for (const table of found) {
+    const { rows } = await pool.query(`select count(*)::int as rows from "${table}"`)
+    console.log(`  ${table.padEnd(18)} ${rows[0].rows}`)
+  }
+  if (missing.length) {
+    console.log(`  missing: ${missing.join(', ')} — run "npm run db:migrate"`)
+    process.exitCode = 1
+  }
 }
 
 const task = process.argv[2] ?? 'status'
