@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import { destinations, modeLabels, type ServiceMode } from '@/data/rates'
 import { createBooking, type BookingState } from '@/app/book/actions'
 
@@ -16,9 +16,37 @@ const stepNames = ['Sender', 'Receiver', 'Shipment', 'Service']
 export default function BookingForm() {
   const [state, action, pending] = useActionState<BookingState, FormData>(createBooking, {})
   const [step, setStep] = useState(0)
+  const steps = useRef<(HTMLFieldSetElement | null)[]>([])
+
+  /** Check the step in front of the user before moving past it. Required fields
+   *  in a hidden step cannot be reported by the browser — it refuses to focus
+   *  them and blocks the submit with nothing on screen to explain why. */
+  function next() {
+    const fields = steps.current[step]?.querySelectorAll<HTMLInputElement>('input, select, textarea')
+    for (const field of fields ?? []) {
+      if (!field.checkValidity()) {
+        field.reportValidity()
+        return
+      }
+    }
+    setStep((s) => s + 1)
+  }
+
+  /** Safety net: if anything invalid is left in a step that is not on screen,
+   *  go to it rather than letting the submit die silently. */
+  function guardSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const invalid = event.currentTarget.querySelector<HTMLInputElement>(':invalid')
+    if (!invalid) return
+    const owner = steps.current.findIndex((f) => f?.contains(invalid))
+    if (owner >= 0 && owner !== step) {
+      event.preventDefault()
+      setStep(owner)
+      requestAnimationFrame(() => invalid.reportValidity())
+    }
+  }
 
   return (
-    <form className="form-card" action={action}>
+    <form className="form-card" action={action} onSubmit={guardSubmit}>
       {/* Honeypot: hidden from people, filled in by most form bots. */}
       <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px' }}>
         <label htmlFor="company">Company</label>
@@ -33,7 +61,7 @@ export default function BookingForm() {
         ))}
       </div>
 
-      <fieldset hidden={step !== 0} style={{ border: 0, margin: 0, padding: 0, display: 'grid', gap: '1rem' }}>
+      <fieldset className="form-step" hidden={step !== 0} ref={(el) => { steps.current[0] = el }}>
         <legend className="sr-only">Sender details</legend>
         <div className="form-row">
           <div className="field">
@@ -61,7 +89,7 @@ export default function BookingForm() {
         </div>
       </fieldset>
 
-      <fieldset hidden={step !== 1} style={{ border: 0, margin: 0, padding: 0, display: 'grid', gap: '1rem' }}>
+      <fieldset className="form-step" hidden={step !== 1} ref={(el) => { steps.current[1] = el }}>
         <legend className="sr-only">Receiver details</legend>
         <div className="form-row">
           <div className="field">
@@ -101,7 +129,7 @@ export default function BookingForm() {
         </div>
       </fieldset>
 
-      <fieldset hidden={step !== 2} style={{ border: 0, margin: 0, padding: 0, display: 'grid', gap: '1rem' }}>
+      <fieldset className="form-step" hidden={step !== 2} ref={(el) => { steps.current[2] = el }}>
         <legend className="sr-only">What is in the shipment</legend>
         <div className="form-row">
           <div className="field">
@@ -128,7 +156,7 @@ export default function BookingForm() {
         </div>
       </fieldset>
 
-      <fieldset hidden={step !== 3} style={{ border: 0, margin: 0, padding: 0, display: 'grid', gap: '1rem' }}>
+      <fieldset className="form-step" hidden={step !== 3} ref={(el) => { steps.current[3] = el }}>
         <legend className="sr-only">Service and collection</legend>
         <div className="form-row">
           <div className="field">
@@ -165,7 +193,7 @@ export default function BookingForm() {
           </button>
         )}
         {step < stepNames.length - 1 && (
-          <button className="btn btn--sm" type="button" onClick={() => setStep((s) => s + 1)}>
+          <button className="btn btn--sm" type="button" onClick={next}>
             Next: {stepNames[step + 1]}
           </button>
         )}

@@ -85,6 +85,14 @@ button { font: inherit; }
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
+/* The `hidden` attribute is only `display: none` in the user-agent stylesheet,
+   so any author rule that sets display — never mind an inline style — silently
+   overrides it and the element stays on screen. */
+[hidden] { display: none !important; }
+
+/* One step of the booking form. */
+.form-step { border: 0; margin: 0; padding: 0; display: grid; gap: 1rem; }
+
 /* ---------- layout primitives ---------- */
 .frame { max-width: var(--frame); margin-inline: auto; padding-inline: var(--gutter); }
 .band { padding-block: var(--band); }
