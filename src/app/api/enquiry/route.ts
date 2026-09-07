@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   const form = await request.formData()
 
   // Honeypot: a field hidden from people but filled in by most form bots.
-  if (String(form.get('company') ?? '').trim() !== '') {
+  if (String(form.get('b0t_check') ?? '').trim() !== '') {
     return NextResponse.redirect(new URL('/contact?sent=ok', request.url), 303)
   }
 

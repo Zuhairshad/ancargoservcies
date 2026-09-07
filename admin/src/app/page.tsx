@@ -7,15 +7,13 @@ import { statusLabels } from '@/lib/shipments'
 import { modeLabels } from '@/data/rates'
 import { formatDate } from '@/lib/dates'
 import { formatPkr } from '@/lib/quote'
-import { isStaff } from './actions'
+import { isStaff } from '@/actions'
 
-export const metadata: Metadata = { title: 'Shipments', robots: { index: false } }
-
-/** Reads cookies and live shipment state — never prerender this at build time. */
+export const metadata: Metadata = { title: 'Shipments' }
 export const dynamic = 'force-dynamic'
 
-export default async function AdminPage() {
-  if (!(await isStaff())) redirect('/admin/login')
+export default async function DashboardPage() {
+  if (!(await isStaff())) redirect('/login')
   const shipments = await store.list()
 
   return (
@@ -30,10 +28,7 @@ export default async function AdminPage() {
 
           {!isPersistent && (
             <div className="notice notice--dev">
-              <span>
-                <b>No database connected — shipments are held in memory.</b> Bookings work while the server runs but are
-                cleared on restart. Set <code>DATABASE_URL</code> and run <code>npm run db:migrate</code> to persist them.
-              </span>
+              <b>No database connected — shipments are in memory only.</b> Set <code>DATABASE_URL</code> to persist them.
             </div>
           )}
 
@@ -55,7 +50,7 @@ export default async function AdminPage() {
                 {shipments.map((s) => (
                   <tr key={s.ref}>
                     <td className="num">
-                      <Link href={`/admin/shipments/${s.ref}`}>
+                      <Link href={`/shipments/${s.ref}`}>
                         <b>{s.ref}</b>
                       </Link>
                     </td>
@@ -73,10 +68,10 @@ export default async function AdminPage() {
                     <td>{statusLabels[s.status]}</td>
                     <td>
                       <span className="admin-actions">
-                        <Link className="btn btn--sm btn--outline" href={`/admin/label/${s.ref}`}>
+                        <Link className="btn btn--sm btn--outline" href={`/shipments/${s.ref}/label`}>
                           Label
                         </Link>
-                        <Link className="btn btn--sm btn--outline" href={`/admin/invoice/${s.ref}`}>
+                        <Link className="btn btn--sm btn--outline" href={`/shipments/${s.ref}/invoice`}>
                           Invoice
                         </Link>
                       </span>

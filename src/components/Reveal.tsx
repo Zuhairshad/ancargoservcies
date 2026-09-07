@@ -1,12 +1,17 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { usePathname } from 'next/navigation'
+
+// Runs synchronously before paint on the client so above-fold elements are
+// revealed without a flash, and without conflicting with SSR hydration.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 export default function Reveal() {
   const pathname = usePathname()
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
+    document.documentElement.classList.add('js')
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     // On every route change, re-scan the DOM for [data-reveal] elements that

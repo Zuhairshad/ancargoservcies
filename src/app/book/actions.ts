@@ -15,7 +15,7 @@ function text(form: FormData, key: string) {
 
 export async function createBooking(_prev: BookingState, form: FormData): Promise<BookingState> {
   // Honeypot: hidden from people, filled in by most form bots.
-  if (String(form.get('company') ?? '').trim() !== '') {
+  if (String(form.get('b0t_check') ?? '').trim() !== '') {
     return { error: 'Something went wrong submitting that. Please try again.' }
   }
 

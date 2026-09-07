@@ -6,13 +6,14 @@ import { store } from '@/lib/store'
 import { modeLabels } from '@/data/rates'
 import { formatDate } from '@/lib/dates'
 import { pkr } from '@/lib/quote'
-import { site } from '@/data/site'
-import { isStaff } from '../../actions'
+import { isStaff } from '@/actions'
 
 type Params = { params: Promise<{ ref: string }> }
 
-export const metadata: Metadata = { title: 'Invoice', robots: { index: false } }
+export const metadata: Metadata = { title: 'Invoice' }
 export const dynamic = 'force-dynamic'
+
+const MAIN_SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ancargoservices.com'
 
 function amountInWords(n: number): string {
   const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
@@ -35,7 +36,7 @@ function amountInWords(n: number): string {
 }
 
 export default async function InvoicePage({ params }: Params) {
-  if (!(await isStaff())) redirect('/admin/login')
+  if (!(await isStaff())) redirect('/login')
   const { ref } = await params
   const shipment = await store.get(decodeURIComponent(ref))
   if (!shipment) notFound()
@@ -57,24 +58,23 @@ export default async function InvoicePage({ params }: Params) {
           </div>
 
           <div className="inv">
-
-            {/* ── Logo ── */}
             <div className="inv__logo">
-              <img src="/images/logo.webp" alt={site.name} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`${MAIN_SITE}/images/logo.webp`} alt="AN Cargo Services" />
             </div>
 
-            {/* ── INVOICE title ── */}
             <div className="inv__title">INVOICE</div>
 
-            {/* ── SHIPPER ── */}
             <div className="inv__shipper">
               <div className="inv__label">SHIPPER</div>
               <div className="inv__shipper-name">{shipment.sender.name}</div>
               <div>{shipment.sender.address}</div>
-              <div>{shipment.sender.city}, {shipment.sender.country}{shipment.sender.phone ? `   PH#: ${shipment.sender.phone}` : ''}</div>
+              <div>
+                {shipment.sender.city}, {shipment.sender.country}
+                {shipment.sender.phone ? `   PH#: ${shipment.sender.phone}` : ''}
+              </div>
             </div>
 
-            {/* ── Shipment grid (left) + Invoice meta (right) ── */}
             <div className="inv__mid">
               <table className="inv__grid">
                 <tbody>
@@ -84,7 +84,9 @@ export default async function InvoicePage({ params }: Params) {
                   </tr>
                   <tr>
                     <th>CARTONS/BALES/PKGS</th>
-                    <td>{shipment.pieces} — {shipment.pieces === 1 ? 'CARTON' : 'CARTONS'}</td>
+                    <td>
+                      {shipment.pieces} — {shipment.pieces === 1 ? 'CARTON' : 'CARTONS'}
+                    </td>
                   </tr>
                   <tr>
                     <th>DESTINATION</th>
@@ -139,7 +141,6 @@ export default async function InvoicePage({ params }: Params) {
               </table>
             </div>
 
-            {/* ── Commodity row ── */}
             <table className="inv__commodity">
               <thead>
                 <tr>
@@ -152,7 +153,9 @@ export default async function InvoicePage({ params }: Params) {
               <tbody>
                 <tr>
                   <td></td>
-                  <td rowSpan={2} className="inv__commodity-val">{shipment.contents.toUpperCase()}</td>
+                  <td rowSpan={2} className="inv__commodity-val">
+                    {shipment.contents.toUpperCase()}
+                  </td>
                   <td>USD:</td>
                   <td></td>
                 </tr>
@@ -164,7 +167,6 @@ export default async function InvoicePage({ params }: Params) {
               </tbody>
             </table>
 
-            {/* ── Charges table ── */}
             <table className="inv__charges">
               <thead>
                 <tr>
@@ -179,8 +181,12 @@ export default async function InvoicePage({ params }: Params) {
                 {freight !== null ? (
                   <tr>
                     <td>
-                      {modeLabels[shipment.mode]} — {shipment.sender.city} to {shipment.receiver.city}, {shipment.receiver.country}
-                      <br /><span style={{ color: 'var(--body-2)' }}>{shipment.contents} · {shipment.pieces} pcs · {shipment.weightKg} kg</span>
+                      {modeLabels[shipment.mode]} — {shipment.sender.city} to {shipment.receiver.city},{' '}
+                      {shipment.receiver.country}
+                      <br />
+                      <span style={{ color: 'var(--body-2)' }}>
+                        {shipment.contents} · {shipment.pieces} pcs · {shipment.weightKg} kg
+                      </span>
                     </td>
                     <td>Freight &amp; Handling</td>
                     <td></td>
@@ -204,27 +210,25 @@ export default async function InvoicePage({ params }: Params) {
               </tbody>
             </table>
 
-            {/* ── Total row ── */}
             <div className="inv__total">
               <div className="inv__words">
                 {freight !== null
                   ? `Rupees ${amountInWords(freight).toUpperCase()} ONLY/-`
                   : 'Amount pending confirmation'}
               </div>
-              <div className="inv__total-amt">
-                {freight !== null ? pkr.format(freight) : '—'}
-              </div>
+              <div className="inv__total-amt">{freight !== null ? pkr.format(freight) : '—'}</div>
             </div>
 
-            {/* ── Notes ── */}
             <div className="inv__notes">
               <p>Thank for choosing AN CARGO for your shipment handling with carrier</p>
-              <p>Note: all cheques/Pay Orders should be crossed in favor of &nbsp;&nbsp;<strong>AN CARGO SERVICES</strong></p>
+              <p>
+                Note: all cheques/Pay Orders should be crossed in favor of &nbsp;&nbsp;
+                <strong>AN CARGO SERVICES</strong>
+              </p>
               <p>If you have any objection, Please intimate us within Three (3) days from the date of issue,</p>
               <p>Other wise Invoice will be considered as final.</p>
             </div>
 
-            {/* ── Company footer ── */}
             <div className="inv__footer">
               <div className="inv__footer-addr">
                 <div>4-Z 14/A, CHENAB MARKET</div>
@@ -232,12 +236,17 @@ export default async function InvoicePage({ params }: Params) {
                 <div>PAKISTAN</div>
               </div>
               <div className="inv__footer-contact">
-                <div><span>TEL:-</span> +92-41-873 7799</div>
-                <div><span>CELL:-</span> 92-307-6998742</div>
-                <div><span>EMAIL:-</span> ancargoservices@gmail.com</div>
+                <div>
+                  <span>TEL:-</span> +92-41-873 7799
+                </div>
+                <div>
+                  <span>CELL:-</span> 92-307-6998742
+                </div>
+                <div>
+                  <span>EMAIL:-</span> ancargoservices@gmail.com
+                </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>

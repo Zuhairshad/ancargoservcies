@@ -8,22 +8,17 @@ import { qrDataUrl } from '@/lib/qr'
 import { modeLabels } from '@/data/rates'
 import { formatLabelDate } from '@/lib/dates'
 import { site } from '@/data/site'
-import { isStaff } from '../../actions'
+import { isStaff } from '@/actions'
 
 type Params = { params: Promise<{ ref: string }> }
 
-export const metadata: Metadata = { title: 'Carton label', robots: { index: false } }
-
+export const metadata: Metadata = { title: 'Carton label' }
 export const dynamic = 'force-dynamic'
 
-/**
- * 4×6in thermal label. The QR encodes the public tracking URL as plain text, so
- * any phone camera opens it — no app, nothing to look up. The reference is also
- * printed large, because labels get scuffed and wet in transit and a handler has
- * to be able to read and type it.
- */
+const MAIN_SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ancargoservices.com'
+
 export default async function LabelPage({ params }: Params) {
-  if (!(await isStaff())) redirect('/admin/login')
+  if (!(await isStaff())) redirect('/login')
   const { ref } = await params
   const shipment = await store.get(decodeURIComponent(ref))
   if (!shipment) notFound()
@@ -47,7 +42,8 @@ export default async function LabelPage({ params }: Params) {
             {Array.from({ length: shipment.pieces }, (_, i) => (
               <div className="label-sheet" key={i}>
                 <div className="label-sheet__top">
-                  <img src="/images/logo.webp" alt={site.name} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`${MAIN_SITE}/images/logo.webp`} alt={site.name} />
                   <div>
                     {modeLabels[shipment.mode]}
                     <br />
@@ -88,6 +84,7 @@ export default async function LabelPage({ params }: Params) {
                       </dd>
                     </div>
                   </dl>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img className="label-sheet__qr" src={qr} alt={`QR code linking to ${url}`} />
                 </div>
 

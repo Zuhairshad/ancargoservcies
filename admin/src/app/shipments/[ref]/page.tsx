@@ -8,16 +8,15 @@ import { modeLabels } from '@/data/rates'
 import { formatDateTime } from '@/lib/dates'
 import { formatPkr } from '@/lib/quote'
 import { site, whatsappLink } from '@/data/site'
-import { confirmShipment, isStaff, updateStatus } from '../../actions'
+import { confirmShipment, isStaff, updateStatus } from '@/actions'
 
 type Params = { params: Promise<{ ref: string }> }
 
-export const metadata: Metadata = { title: 'Shipment', robots: { index: false } }
-
+export const metadata: Metadata = { title: 'Shipment' }
 export const dynamic = 'force-dynamic'
 
-export default async function AdminShipmentPage({ params }: Params) {
-  if (!(await isStaff())) redirect('/admin/login')
+export default async function ShipmentPage({ params }: Params) {
+  if (!(await isStaff())) redirect('/login')
   const { ref } = await params
   const shipment = await store.get(decodeURIComponent(ref))
   if (!shipment) notFound()
@@ -35,16 +34,26 @@ export default async function AdminShipmentPage({ params }: Params) {
               <div className="shipment-ref">{shipment.ref}</div>
             </div>
             <span className="admin-actions">
-              <Link className="btn btn--sm btn--outline" href={`/admin/label/${shipment.ref}`}>
+              <Link className="btn btn--sm btn--outline" href={`/shipments/${shipment.ref}/label`}>
                 Print label
               </Link>
-              <Link className="btn btn--sm btn--outline" href={`/admin/invoice/${shipment.ref}`}>
+              <Link className="btn btn--sm btn--outline" href={`/shipments/${shipment.ref}/invoice`}>
                 Print invoice
               </Link>
-              <Link className="btn btn--sm btn--outline" href={`/track/${shipment.ref}`}>
+              <a
+                className="btn btn--sm btn--outline"
+                href={trackingUrl(shipment.ref)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Public view
-              </Link>
-              <a className="btn btn--sm btn--wa" href={whatsappLink(waMessage, shipment.sender.phone.replace(/\D/g, ''))} target="_blank" rel="noopener noreferrer">
+              </a>
+              <a
+                className="btn btn--sm btn--wa"
+                href={whatsappLink(waMessage, shipment.sender.phone.replace(/\D/g, ''))}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Send update
               </a>
             </span>
@@ -100,7 +109,14 @@ export default async function AdminShipmentPage({ params }: Params) {
               <input type="hidden" name="ref" value={shipment.ref} />
               <div className="field">
                 <label htmlFor="freightPkr">Confirm freight charge (PKR)</label>
-                <input id="freightPkr" name="freightPkr" type="number" min="0" required defaultValue={shipment.estimatePkr ?? undefined} />
+                <input
+                  id="freightPkr"
+                  name="freightPkr"
+                  type="number"
+                  min="0"
+                  required
+                  defaultValue={shipment.estimatePkr ?? undefined}
+                />
               </div>
               <button className="btn" type="submit">
                 Confirm booking

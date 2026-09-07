@@ -2,14 +2,14 @@
 
 import { useActionState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { login, type LoginState } from '../actions'
+import { login, type LoginState } from '@/actions'
 
 export default function LoginPage() {
   const router = useRouter()
   const [state, action, pending] = useActionState<LoginState, FormData>(login, {})
 
   useEffect(() => {
-    if (state.ok) router.replace('/admin')
+    if (state.ok) router.replace('/')
   }, [state.ok, router])
 
   return (
@@ -18,8 +18,26 @@ export default function LoginPage() {
         <form className="form-card" action={action}>
           <h1 className="h-sub">Staff sign in</h1>
           <div className="field">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoFocus
+              autoComplete="email"
+              placeholder="info@ancargoservices.com"
+            />
+          </div>
+          <div className="field">
             <label htmlFor="password">Password</label>
-            <input id="password" name="password" type="password" required autoFocus autoComplete="current-password" />
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              autoComplete="current-password"
+            />
           </div>
           {state.error && (
             <p className="form-note" role="alert" style={{ color: 'var(--accent)' }}>
@@ -29,10 +47,6 @@ export default function LoginPage() {
           <button className="btn" type="submit" disabled={pending}>
             {pending ? 'Checking…' : 'Sign in'}
           </button>
-          <p className="form-note">
-            Set <code>ADMIN_PASSWORD</code> in the server environment. This is a scaffold-level gate — replace it with
-            per-user accounts before more than a couple of people need access.
-          </p>
         </form>
       </div>
     </section>

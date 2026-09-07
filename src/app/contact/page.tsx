@@ -72,10 +72,10 @@ export default function ContactPage() {
               <EnquiryNotice />
             </Suspense>
 
-            {/* Honeypot: hidden from people, filled in by most form bots. */}
-            <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px' }}>
-              <label htmlFor="company">Company</label>
-              <input id="company" name="company" tabIndex={-1} autoComplete="off" />
+            {/* Honeypot: bots fill it, humans never see it. */}
+            <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 0, height: 0, overflow: 'hidden' }}>
+              <label htmlFor="b0t_check">Leave blank</label>
+              <input id="b0t_check" name="b0t_check" tabIndex={-1} autoComplete="new-password" />
             </div>
 
             <div className="form-row">

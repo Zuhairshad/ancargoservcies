@@ -3,46 +3,53 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import bcryptjs from 'bcryptjs'
 import { store } from '@/lib/store'
 import { mailer } from '@/lib/mail'
 import { bookingConfirmed, statusChanged } from '@/lib/emails'
 import type { Status } from '@/lib/shipments'
 import { AUTH_COOKIE } from '@/lib/auth'
+import { createPool } from '@/lib/postgres-store'
 
 export type LoginState = { error?: string; ok?: boolean }
 
 export async function login(_prev: LoginState, form: FormData): Promise<LoginState> {
-  const expected = process.env.ADMIN_PASSWORD
-  if (!expected) {
-    return { error: 'ADMIN_PASSWORD is not set on the server. Add it to your environment — see .env.example.' }
+  const email = String(form.get('email')).trim().toLowerCase()
+  const password = String(form.get('password'))
+
+  const dbUrl = process.env.DATABASE_URL
+  if (!dbUrl) return { error: 'Database not configured.' }
+
+  const pool = createPool(dbUrl)
+  const { rows } = await pool.query<{ password_hash: string }>(
+    'select password_hash from staff_users where email = $1',
+    [email],
+  )
+
+  if (rows.length === 0 || !(await bcryptjs.compare(password, rows[0].password_hash))) {
+    return { error: 'Invalid email or password.' }
   }
-  if (String(form.get('password')) !== expected) {
-    return { error: 'That password is not right.' }
-  }
+
   const jar = await cookies()
-  jar.set(AUTH_COOKIE, expected, {
+  jar.set(AUTH_COOKIE, email, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 60 * 60 * 12,
   })
-  // The caller navigates once this returns: setting a cookie and redirecting in
-  // the same action response breaks the round trip.
   return { ok: true }
 }
 
 export async function logout() {
   const jar = await cookies()
   jar.delete(AUTH_COOKIE)
-  redirect('/admin/login')
+  redirect('/login')
 }
 
 export async function isStaff() {
-  const expected = process.env.ADMIN_PASSWORD
-  if (!expected) return false
   const jar = await cookies()
-  return jar.get(AUTH_COOKIE)?.value === expected
+  return Boolean(jar.get(AUTH_COOKIE)?.value)
 }
 
 export async function updateStatus(form: FormData) {
@@ -57,8 +64,7 @@ export async function updateStatus(form: FormData) {
     if (message) await mailer.send(message)
   }
 
-  revalidatePath(`/admin/shipments/${ref}`)
-  revalidatePath(`/track/${ref}`)
+  revalidatePath(`/shipments/${ref}`)
 }
 
 export async function confirmShipment(form: FormData) {
@@ -71,6 +77,5 @@ export async function confirmShipment(form: FormData) {
       if (message) await mailer.send(message)
     }
   }
-  revalidatePath(`/admin/shipments/${ref}`)
-  revalidatePath(`/track/${ref}`)
+  revalidatePath(`/shipments/${ref}`)
 }
