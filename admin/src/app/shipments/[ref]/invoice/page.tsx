@@ -58,12 +58,11 @@ export default async function InvoicePage({ params }: Params) {
           </div>
 
           <div className="inv">
-            <div className="inv__logo">
+            <div className="inv__title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>INVOICE</span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`${MAIN_SITE}/images/logo.webp`} alt="AN Cargo Services" />
+              <img src={`${MAIN_SITE}/images/logo.webp`} alt="AN Cargo Services" style={{ height: '56px', width: 'auto' }} />
             </div>
-
-            <div className="inv__title">INVOICE</div>
 
             <div className="inv__shipper">
               <div className="inv__label">SHIPPER</div>
@@ -243,7 +242,7 @@ export default async function InvoicePage({ params }: Params) {
                   <span>CELL:-</span> 92-307-6998742
                 </div>
                 <div>
-                  <span>EMAIL:-</span> ancargoservices@gmail.com
+                  <span>EMAIL:-</span> info@ancargoservices.com
                 </div>
               </div>
             </div>

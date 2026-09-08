@@ -131,15 +131,12 @@ export class PostgresStore implements ShipmentStore {
   async create(input: NewShipment): Promise<Shipment> {
     return this.withTransaction(async (client) => {
       const now = new Date()
-      const period = `${String(now.getUTCFullYear()).slice(2)}${String(now.getUTCMonth() + 1).padStart(2, '0')}`
 
-      // Locks the period row for the duration of the transaction, so concurrent
-      // bookings queue rather than collide on the same sequence number.
+      // Global counter — 'AN' is the constant key so all bookings share one sequence.
       const counter = await client.query<{ last_seq: number }>(
-        `insert into ref_counters (period, last_seq) values ($1, 1)
+        `insert into ref_counters (period, last_seq) values ('AN', 1)
          on conflict (period) do update set last_seq = ref_counters.last_seq + 1
          returning last_seq`,
-        [period],
       )
       const ref = formatRef(now, counter.rows[0].last_seq)
 

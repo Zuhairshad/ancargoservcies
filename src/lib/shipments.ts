@@ -65,17 +65,14 @@ export type Shipment = {
   events: ShipmentEvent[]
 }
 
-/** ANCS-YYMM-NNNN — readable over the phone, unique, and sorts by month. */
-export function formatRef(date: Date, sequence: number) {
-  const yy = String(date.getUTCFullYear()).slice(2)
-  const mm = String(date.getUTCMonth() + 1).padStart(2, '0')
-  return `ANCS-${yy}${mm}-${String(sequence).padStart(4, '0')}`
+export function formatRef(_date: Date, sequence: number) {
+  return `AN${String(sequence).padStart(5, '0')}`
 }
 
 export function normaliseRef(input: string) {
-  const cleaned = input.trim().toUpperCase().replace(/\s+/g, '')
-  if (/^\d{8}$/.test(cleaned)) return `ANCS-${cleaned.slice(0, 4)}-${cleaned.slice(4)}`
-  return cleaned.startsWith('ANCS-') ? cleaned : `ANCS-${cleaned}`
+  const cleaned = input.trim().toUpperCase().replace(/[\s-]+/g, '')
+  if (/^\d+$/.test(cleaned)) return `AN${cleaned.padStart(5, '0')}`
+  return cleaned.startsWith('AN') ? cleaned : `AN${cleaned}`
 }
 
 export function trackingUrl(ref: string) {

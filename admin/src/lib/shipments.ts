@@ -58,10 +58,8 @@ export type Shipment = {
   events: ShipmentEvent[]
 }
 
-export function formatRef(date: Date, sequence: number) {
-  const yy = String(date.getUTCFullYear()).slice(2)
-  const mm = String(date.getUTCMonth() + 1).padStart(2, '0')
-  return `ANCS-${yy}${mm}-${String(sequence).padStart(4, '0')}`
+export function formatRef(_date: Date, sequence: number) {
+  return `AN${String(sequence).padStart(5, '0')}`
 }
 
 export function trackingUrl(ref: string) {
