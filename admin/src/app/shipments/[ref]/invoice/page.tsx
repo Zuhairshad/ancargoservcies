@@ -58,11 +58,10 @@ export default async function InvoicePage({ params }: Params) {
           </div>
 
           <div className="inv">
-            <div className="inv__title">INVOICE</div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0.3rem 0 0.1rem' }}>
+            <div className="inv__title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              <span>INVOICE</span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`${MAIN_SITE}/images/logo.webp`} alt="AN Cargo Services" style={{ height: '60px', width: 'auto' }} />
+              <img src={`${MAIN_SITE}/images/logo.webp`} alt="AN Cargo Services" style={{ height: '60px', width: 'auto', display: 'block' }} />
             </div>
 
             <div className="inv__shipper">
