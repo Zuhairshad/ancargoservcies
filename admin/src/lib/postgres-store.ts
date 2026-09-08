@@ -1,5 +1,5 @@
 import { Pool, type PoolClient } from 'pg'
-import { formatRef, type Shipment, type ShipmentEvent, type Status } from './shipments'
+import { formatRef, type GoodsItem, type Shipment, type ShipmentEvent, type Status } from './shipments'
 import type { NewShipment, ShipmentStore } from './store'
 import type { ServiceMode } from '@/data/rates'
 
@@ -28,6 +28,8 @@ type Row = {
   estimate_pkr: string | null
   freight_pkr: string | null
   pickup_date: Date | null
+  goods: GoodsItem[] | null
+  source: 'web' | 'manual'
 }
 
 type EventRow = { status: Status; at: Date; location: string | null; note: string | null }
@@ -64,6 +66,8 @@ function toShipment(row: Row, events: EventRow[]): Shipment {
     estimatePkr: num(row.estimate_pkr),
     freightPkr: num(row.freight_pkr),
     pickupDate: row.pickup_date ? row.pickup_date.toISOString().slice(0, 10) : undefined,
+    goods: row.goods ?? null,
+    source: row.source ?? 'web',
     events: events.map(
       (e): ShipmentEvent => ({
         status: e.status,
@@ -135,12 +139,12 @@ export class PostgresStore implements ShipmentStore {
            ref, created_at, status, confirmed,
            sender_name, sender_phone, sender_email, sender_address, sender_city, sender_country,
            receiver_name, receiver_phone, receiver_email, receiver_address, receiver_city, receiver_country,
-           mode, pieces, weight_kg, contents, declared_value_pkr, estimate_pkr, freight_pkr, pickup_date
+           mode, pieces, weight_kg, contents, declared_value_pkr, estimate_pkr, freight_pkr, pickup_date, goods, source
          ) values (
            $1, $2, 'booked', false,
            $3, $4, $5, $6, $7, $8,
            $9, $10, $11, $12, $13, $14,
-           $15, $16, $17, $18, $19, $20, null, $21
+           $15, $16, $17, $18, $19, $20, null, $21, $22, $23
          )`,
         [
           ref, now,
@@ -150,6 +154,8 @@ export class PostgresStore implements ShipmentStore {
           input.receiver.address, input.receiver.city, input.receiver.country,
           input.mode, input.pieces, input.weightKg, input.contents,
           input.declaredValuePkr, input.estimatePkr, input.pickupDate ?? null,
+          input.goods ? JSON.stringify(input.goods) : null,
+          input.source ?? 'web',
         ],
       )
 
@@ -184,6 +190,15 @@ export class PostgresStore implements ShipmentStore {
     const updated = await this.pool.query(
       'update shipments set confirmed = true, freight_pkr = $2 where ref = $1',
       [ref, freightPkr],
+    )
+    if (updated.rowCount === 0) return null
+    return this.get(ref)
+  }
+
+  async updateGoods(ref: string, goods: GoodsItem[], contents: string): Promise<Shipment | null> {
+    const updated = await this.pool.query(
+      'update shipments set goods = $2, contents = $3 where ref = $1',
+      [ref, JSON.stringify(goods), contents],
     )
     if (updated.rowCount === 0) return null
     return this.get(ref)

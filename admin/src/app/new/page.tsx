@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import AdminBar from '@/components/AdminBar'
+import GoodsTable from '@/components/GoodsTable'
 import { isStaff, createManualBooking } from '@/actions'
 import { modeLabels, destinations } from '@/data/rates'
 
@@ -107,9 +108,8 @@ export default async function NewBookingPage() {
             </div>
 
             <div className="field">
-              <label htmlFor="contents">Description of goods *</label>
-              <textarea id="contents" name="contents" required rows={3}
-                placeholder="Be specific — this goes on the customs invoice." />
+              <label>Description of Goods</label>
+              <GoodsTable />
             </div>
 
             <div className="field" style={{ maxWidth: '16rem' }}>

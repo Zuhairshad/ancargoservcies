@@ -9,6 +9,7 @@ import { formatDateTime } from '@/lib/dates'
 import { formatPkr } from '@/lib/quote'
 import { site, whatsappLink } from '@/data/site'
 import { confirmShipment, isStaff, updateStatus } from '@/actions'
+import GoodsSection from '@/components/GoodsSection'
 
 type Params = { params: Promise<{ ref: string }> }
 
@@ -30,7 +31,11 @@ export default async function ShipmentPage({ params }: Params) {
         <div className="frame stack--lg" style={{ display: 'grid' }}>
           <div className="shipment-head">
             <div>
-              <span className="stat-label">Reference</span>
+              <span className="stat-label">
+                Reference · <span style={{ color: shipment.source === 'manual' ? 'var(--warn)' : 'var(--ok)' }}>
+                  {shipment.source === 'manual' ? 'Manual booking' : 'Web booking'}
+                </span>
+              </span>
               <div className="shipment-ref">{shipment.ref}</div>
             </div>
             <span className="admin-actions">
@@ -149,6 +154,8 @@ export default async function ShipmentPage({ params }: Params) {
               Add update
             </button>
           </form>
+
+          <GoodsSection ref_={shipment.ref} goods={shipment.goods} />
 
           <div className="stack">
             <h2 className="h-sub">History</h2>

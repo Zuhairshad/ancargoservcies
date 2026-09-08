@@ -28,8 +28,7 @@ export default async function TrackRefPage({ params }: Params) {
         <div className="frame stack">
           <h1 className="h-title">We cannot find {reference}.</h1>
           <p className="lead measure">
-            Check the reference against your receipt — it is four digits after the month, like ANCS-2607-0148. If it
-            still does not work, message us and we will trace it by sender name.
+            Check the reference against your receipt — it looks like AN00001. If it still does not work, message us and we will trace it by sender name.
           </p>
           <TrackForm autoFocus />
           <div className="row">
@@ -119,9 +118,9 @@ export default async function TrackRefPage({ params }: Params) {
                           {event.location ? ` · ${event.location}` : ''}
                           {event.note ? ` · ${event.note}` : ''}
                         </span>
-                      ) : (
+                      ) : !done ? (
                         <span className="muted">Not yet</span>
-                      )}
+                      ) : null}
                     </div>
                   </li>
                 )

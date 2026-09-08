@@ -58,20 +58,20 @@ export default async function InvoicePage({ params }: Params) {
           </div>
 
           <div className="inv">
-            <div className="inv__title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
-              <span>INVOICE</span>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`${MAIN_SITE}/images/logo.webp`} alt="AN Cargo Services" style={{ height: '60px', width: 'auto', display: 'block' }} />
-            </div>
+            <div className="inv__title">INVOICE</div>
 
-            <div className="inv__shipper">
-              <div className="inv__label">SHIPPER</div>
-              <div className="inv__shipper-name">{shipment.sender.name}</div>
-              <div>{shipment.sender.address}</div>
+            <div className="inv__shipper" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                {shipment.sender.city}, {shipment.sender.country}
-                {shipment.sender.phone ? `   PH#: ${shipment.sender.phone}` : ''}
+                <div className="inv__label">SHIPPER</div>
+                <div className="inv__shipper-name">{shipment.sender.name}</div>
+                <div>{shipment.sender.address}</div>
+                <div>
+                  {shipment.sender.city}, {shipment.sender.country}
+                  {shipment.sender.phone ? `   PH#: ${shipment.sender.phone}` : ''}
+                </div>
               </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`${MAIN_SITE}/images/logo.webp`} alt="AN Cargo Services" style={{ height: '70px', width: 'auto', display: 'block', flexShrink: 0 }} />
             </div>
 
             <div className="inv__mid">
@@ -140,31 +140,70 @@ export default async function InvoicePage({ params }: Params) {
               </table>
             </div>
 
-            <table className="inv__commodity">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>COMMODITY</th>
-                  <th>EXCHANGE RATE</th>
-                  <th>TOTAL AMOUNT IN US$</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td></td>
-                  <td rowSpan={2} className="inv__commodity-val">
-                    {shipment.contents.toUpperCase()}
-                  </td>
-                  <td>USD:</td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>GBP:</td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
+            {shipment.goods && shipment.goods.length > 0 ? (
+              <table className="inv__commodity" style={{ tableLayout: 'fixed' }}>
+                <thead>
+                  <tr>
+                    <th style={{ width: '3rem', textAlign: 'center' }}>SERIAL NO.</th>
+                    <th>DESCRIPTION OF GOODS</th>
+                    <th style={{ width: '7rem', textAlign: 'center' }}>NO. OF ITEMS</th>
+                    <th style={{ width: '8rem', textAlign: 'center' }}>UNIT VALUE USD</th>
+                    <th style={{ width: '8rem', textAlign: 'right' }}>TOTAL VALUE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shipment.goods.map((g, i) => {
+                    const total = g.qty * g.unitValueUsd
+                    return (
+                      <tr key={i}>
+                        <td style={{ textAlign: 'center' }}>{i + 1}</td>
+                        <td style={{ fontWeight: 600 }}>{g.description.toUpperCase()}</td>
+                        <td style={{ textAlign: 'center' }}>{g.qty > 0 ? g.qty : ''}</td>
+                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                          {g.unitValueUsd > 0 ? `$${g.unitValueUsd.toFixed(2)}` : ''}
+                        </td>
+                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                          {total > 0 ? `$${total.toFixed(2)}` : ''}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {/* Blank filler rows to match invoice paper look */}
+                  {Array.from({ length: Math.max(0, 5 - shipment.goods.length) }).map((_, i) => (
+                    <tr key={`blank-${i}`}>
+                      <td style={{ textAlign: 'center' }}>{shipment.goods!.length + i + 1}</td>
+                      <td></td><td></td><td></td><td></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <table className="inv__commodity">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>COMMODITY</th>
+                    <th>EXCHANGE RATE</th>
+                    <th>TOTAL AMOUNT IN US$</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td></td>
+                    <td rowSpan={2} className="inv__commodity-val">
+                      {shipment.contents.toUpperCase()}
+                    </td>
+                    <td>USD:</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>GBP:</td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            )}
 
             <table className="inv__charges">
               <thead>

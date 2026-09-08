@@ -1,5 +1,12 @@
 import type { ServiceMode } from '@/data/rates'
 
+export type GoodsItem = {
+  description: string
+  qty: number
+  unitValueUsd: number
+  totalValueUsd: number
+}
+
 export const statuses = [
   'booked',
   'collected',
@@ -55,6 +62,8 @@ export type Shipment = {
   freightPkr: number | null
   estimatePkr: number | null
   pickupDate?: string
+  goods: GoodsItem[] | null
+  source: 'web' | 'manual'
   events: ShipmentEvent[]
 }
 

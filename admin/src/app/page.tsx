@@ -59,6 +59,15 @@ export default async function DashboardPage() {
                     </td>
                     <td className="num">{formatDate(s.createdAt)}</td>
                     <td>
+                      <span style={{
+                        fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
+                        letterSpacing: '0.06em', padding: '0.1rem 0.4rem', borderRadius: '3px',
+                        background: s.source === 'manual' ? '#fff5e0' : '#e8f5f0',
+                        color: s.source === 'manual' ? 'var(--warn)' : 'var(--ok)',
+                        marginRight: '0.4rem',
+                      }}>
+                        {s.source === 'manual' ? 'Manual' : 'Web'}
+                      </span>
                       {s.sender.city} → {s.receiver.city}
                     </td>
                     <td>{modeLabels[s.mode]}</td>

@@ -7,7 +7,7 @@ import bcryptjs from 'bcryptjs'
 import { store } from '@/lib/store'
 import { mailer } from '@/lib/mail'
 import { bookingConfirmed, statusChanged } from '@/lib/emails'
-import type { Status } from '@/lib/shipments'
+import type { GoodsItem, Status } from '@/lib/shipments'
 import type { ServiceMode } from '@/data/rates'
 import { AUTH_COOKIE } from '@/lib/auth'
 import { createPool } from '@/lib/postgres-store'
@@ -71,6 +71,20 @@ export async function updateStatus(form: FormData) {
 export async function createManualBooking(form: FormData) {
   if (!(await isStaff())) redirect('/login')
 
+  const count = parseInt(String(form.get('goods_count') || '0'), 10)
+  const goods: GoodsItem[] = []
+  for (let i = 0; i < count; i++) {
+    const description = String(form.get(`goods_desc_${i}`) || '').trim()
+    const qty = Number(form.get(`goods_qty_${i}`)) || 0
+    const unitValueUsd = Number(form.get(`goods_usd_${i}`)) || 0
+    const totalValueUsd = Number(form.get(`goods_total_${i}`)) || (qty * unitValueUsd)
+    if (description) goods.push({ description, qty, unitValueUsd, totalValueUsd })
+  }
+
+  const contents = goods.length > 0
+    ? goods.map(g => `${g.description}${g.qty > 0 ? ` ×${g.qty}` : ''}`).join('; ')
+    : String(form.get('contents') || '').trim() || 'No description'
+
   const shipment = await store.create({
     sender: {
       name: String(form.get('senderName')),
@@ -91,13 +105,24 @@ export async function createManualBooking(form: FormData) {
     mode: String(form.get('mode')) as ServiceMode,
     pieces: Math.max(1, Number(form.get('pieces')) || 1),
     weightKg: Number(form.get('weightKg')) || 0,
-    contents: String(form.get('contents')),
+    contents,
+    goods: goods.length > 0 ? goods : null,
+    source: 'manual',
     declaredValuePkr: Number(form.get('declaredValuePkr')) || 0,
     estimatePkr: null,
     pickupDate: String(form.get('pickupDate') || '') || undefined,
   })
 
   redirect(`/shipments/${shipment.ref}`)
+}
+
+export async function updateGoods(ref: string, goods: GoodsItem[]) {
+  if (!(await isStaff())) redirect('/login')
+  const contents = goods.length > 0
+    ? goods.map(g => `${g.description}${g.qty > 0 ? ` ×${g.qty}` : ''}`).join('; ')
+    : ''
+  await store.updateGoods(ref, goods, contents)
+  revalidatePath(`/shipments/${ref}`)
 }
 
 export async function confirmShipment(form: FormData) {

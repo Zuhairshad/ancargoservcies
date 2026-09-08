@@ -1,4 +1,4 @@
-import { formatRef, type Shipment, type Status } from './shipments'
+import { formatRef, type GoodsItem, type Shipment, type Status } from './shipments'
 import { createPool, PostgresStore } from './postgres-store'
 
 export interface ShipmentStore {
@@ -7,6 +7,7 @@ export interface ShipmentStore {
   create(input: NewShipment): Promise<Shipment>
   addEvent(ref: string, status: Status, location?: string, note?: string): Promise<Shipment | null>
   confirm(ref: string, freightPkr: number): Promise<Shipment | null>
+  updateGoods(ref: string, goods: GoodsItem[], contents: string): Promise<Shipment | null>
 }
 
 export type NewShipment = Omit<Shipment, 'ref' | 'createdAt' | 'status' | 'confirmed' | 'events' | 'freightPkr'>
@@ -56,6 +57,14 @@ class MemoryStore implements ShipmentStore {
     const s = this.shipments.get(ref)
     if (!s) return null
     const updated: Shipment = { ...s, confirmed: true, freightPkr }
+    this.shipments.set(ref, updated)
+    return updated
+  }
+
+  async updateGoods(ref: string, goods: GoodsItem[], contents: string) {
+    const s = this.shipments.get(ref)
+    if (!s) return null
+    const updated: Shipment = { ...s, goods, contents }
     this.shipments.set(ref, updated)
     return updated
   }
