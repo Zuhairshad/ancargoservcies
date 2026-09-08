@@ -39,6 +39,9 @@ export default async function ShipmentPage({ params }: Params) {
               <div className="shipment-ref">{shipment.ref}</div>
             </div>
             <span className="admin-actions">
+              <Link className="btn btn--sm btn--outline" href={`/shipments/${shipment.ref}/edit`}>
+                Edit booking
+              </Link>
               <Link className="btn btn--sm btn--outline" href={`/shipments/${shipment.ref}/label`}>
                 Print label
               </Link>

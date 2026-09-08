@@ -116,6 +116,55 @@ export async function createManualBooking(form: FormData) {
   redirect(`/shipments/${shipment.ref}`)
 }
 
+export async function updateShipment(form: FormData) {
+  if (!(await isStaff())) redirect('/login')
+  const ref = String(form.get('ref'))
+
+  const count = parseInt(String(form.get('goods_count') || '0'), 10)
+  const goods: GoodsItem[] = []
+  for (let i = 0; i < count; i++) {
+    const description = String(form.get(`goods_desc_${i}`) || '').trim()
+    const qty = Number(form.get(`goods_qty_${i}`)) || 0
+    const unitValueUsd = Number(form.get(`goods_usd_${i}`)) || 0
+    const totalValueUsd = Number(form.get(`goods_total_${i}`)) || qty * unitValueUsd
+    if (description) goods.push({ description, qty, unitValueUsd, totalValueUsd })
+  }
+
+  const contents = goods.length > 0
+    ? goods.map(g => `${g.description}${g.qty > 0 ? ` ×${g.qty}` : ''}`).join('; ')
+    : String(form.get('contents') || '').trim() || 'No description'
+
+  await store.update(ref, {
+    sender: {
+      name: String(form.get('senderName')),
+      phone: String(form.get('senderPhone')),
+      email: String(form.get('senderEmail') || '') || undefined,
+      address: String(form.get('senderAddress')),
+      city: String(form.get('senderCity')),
+      country: String(form.get('senderCountry') || 'Pakistan'),
+    },
+    receiver: {
+      name: String(form.get('receiverName')),
+      phone: String(form.get('receiverPhone')),
+      email: String(form.get('receiverEmail') || '') || undefined,
+      address: String(form.get('receiverAddress')),
+      city: String(form.get('receiverCity')),
+      country: String(form.get('receiverCountry')),
+    },
+    mode: String(form.get('mode')) as ServiceMode,
+    pieces: Math.max(1, Number(form.get('pieces')) || 1),
+    weightKg: Number(form.get('weightKg')) || 0,
+    contents,
+    goods: goods.length > 0 ? goods : null,
+    source: 'manual',
+    declaredValuePkr: Number(form.get('declaredValuePkr')) || 0,
+    estimatePkr: null,
+    pickupDate: String(form.get('pickupDate') || '') || undefined,
+  })
+
+  redirect(`/shipments/${ref}`)
+}
+
 export async function updateGoods(ref: string, goods: GoodsItem[]) {
   if (!(await isStaff())) redirect('/login')
   const contents = goods.length > 0

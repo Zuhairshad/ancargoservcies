@@ -203,6 +203,31 @@ export class PostgresStore implements ShipmentStore {
     if (updated.rowCount === 0) return null
     return this.get(ref)
   }
+
+  async update(ref: string, input: NewShipment): Promise<Shipment | null> {
+    const updated = await this.pool.query(
+      `update shipments set
+         sender_name=$2, sender_phone=$3, sender_email=$4, sender_address=$5, sender_city=$6, sender_country=$7,
+         receiver_name=$8, receiver_phone=$9, receiver_email=$10, receiver_address=$11, receiver_city=$12, receiver_country=$13,
+         mode=$14, pieces=$15, weight_kg=$16, contents=$17, declared_value_pkr=$18, estimate_pkr=$19,
+         pickup_date=$20, goods=$21, source=$22
+       where ref=$1`,
+      [
+        ref,
+        input.sender.name, input.sender.phone, input.sender.email ?? null,
+        input.sender.address, input.sender.city, input.sender.country,
+        input.receiver.name, input.receiver.phone, input.receiver.email ?? null,
+        input.receiver.address, input.receiver.city, input.receiver.country,
+        input.mode, input.pieces, input.weightKg, input.contents,
+        input.declaredValuePkr, input.estimatePkr,
+        input.pickupDate ?? null,
+        input.goods ? JSON.stringify(input.goods) : null,
+        input.source ?? 'manual',
+      ],
+    )
+    if (updated.rowCount === 0) return null
+    return this.get(ref)
+  }
 }
 
 const globalForPool = globalThis as unknown as { ancsAdminPool?: Pool }

@@ -8,6 +8,7 @@ export interface ShipmentStore {
   addEvent(ref: string, status: Status, location?: string, note?: string): Promise<Shipment | null>
   confirm(ref: string, freightPkr: number): Promise<Shipment | null>
   updateGoods(ref: string, goods: GoodsItem[], contents: string): Promise<Shipment | null>
+  update(ref: string, input: NewShipment): Promise<Shipment | null>
 }
 
 export type NewShipment = Omit<Shipment, 'ref' | 'createdAt' | 'status' | 'confirmed' | 'events' | 'freightPkr'>
@@ -65,6 +66,14 @@ class MemoryStore implements ShipmentStore {
     const s = this.shipments.get(ref)
     if (!s) return null
     const updated: Shipment = { ...s, goods, contents }
+    this.shipments.set(ref, updated)
+    return updated
+  }
+
+  async update(ref: string, input: NewShipment) {
+    const s = this.shipments.get(ref)
+    if (!s) return null
+    const updated: Shipment = { ...s, ...input }
     this.shipments.set(ref, updated)
     return updated
   }
