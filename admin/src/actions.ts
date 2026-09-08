@@ -8,6 +8,7 @@ import { store } from '@/lib/store'
 import { mailer } from '@/lib/mail'
 import { bookingConfirmed, statusChanged } from '@/lib/emails'
 import type { Status } from '@/lib/shipments'
+import type { ServiceMode } from '@/data/rates'
 import { AUTH_COOKIE } from '@/lib/auth'
 import { createPool } from '@/lib/postgres-store'
 
@@ -65,6 +66,38 @@ export async function updateStatus(form: FormData) {
   }
 
   revalidatePath(`/shipments/${ref}`)
+}
+
+export async function createManualBooking(form: FormData) {
+  if (!(await isStaff())) redirect('/login')
+
+  const shipment = await store.create({
+    sender: {
+      name: String(form.get('senderName')),
+      phone: String(form.get('senderPhone')),
+      email: String(form.get('senderEmail') || '') || undefined,
+      address: String(form.get('senderAddress')),
+      city: String(form.get('senderCity')),
+      country: String(form.get('senderCountry') || 'Pakistan'),
+    },
+    receiver: {
+      name: String(form.get('receiverName')),
+      phone: String(form.get('receiverPhone')),
+      email: String(form.get('receiverEmail') || '') || undefined,
+      address: String(form.get('receiverAddress')),
+      city: String(form.get('receiverCity')),
+      country: String(form.get('receiverCountry')),
+    },
+    mode: String(form.get('mode')) as ServiceMode,
+    pieces: Math.max(1, Number(form.get('pieces')) || 1),
+    weightKg: Number(form.get('weightKg')) || 0,
+    contents: String(form.get('contents')),
+    declaredValuePkr: Number(form.get('declaredValuePkr')) || 0,
+    estimatePkr: null,
+    pickupDate: String(form.get('pickupDate') || '') || undefined,
+  })
+
+  redirect(`/shipments/${shipment.ref}`)
 }
 
 export async function confirmShipment(form: FormData) {

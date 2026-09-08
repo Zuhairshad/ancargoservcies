@@ -84,6 +84,8 @@ button { font: inherit; }
 }
 .field input:focus, .field select:focus { outline: 2px solid var(--navy); outline-offset: 1px; border-color: var(--navy); }
 .form-card { background: var(--paper); border-radius: var(--radius); padding: clamp(1.5rem, 3vw, 2.25rem); display: grid; gap: 1rem; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
+.form-section-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--body-2); font-weight: 600; padding-bottom: 0.5rem; border-bottom: 1px solid var(--line); margin-top: 0.5rem; }
 .form-note { margin: 0; font-size: var(--t-small); color: var(--body-2); }
 
 /* ---------- tables ---------- */

@@ -7,3 +7,12 @@ export const modeLabels: Record<ServiceMode, string> = {
   courier: 'Courier',
   'door-to-door': 'Door-to-door',
 }
+
+export const destinations = [
+  'United Kingdom',
+  'United Arab Emirates',
+  'Saudi Arabia',
+  'Europe',
+  'United States',
+  'Rest of world',
+] as const

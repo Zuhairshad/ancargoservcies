@@ -23,7 +23,10 @@ export default async function DashboardPage() {
         <div className="frame stack--lg" style={{ display: 'grid' }}>
           <div className="shipment-head">
             <h1 className="h-section">Shipments</h1>
-            <span className="stat-label">{shipments.length} on file</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <span className="stat-label">{shipments.length} on file</span>
+              <Link className="btn btn--sm" href="/new">+ New booking</Link>
+            </div>
           </div>
 
           {!isPersistent && (

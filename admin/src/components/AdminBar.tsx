@@ -7,6 +7,7 @@ export default function AdminBar() {
       <div className="frame admin-bar__in">
         <b>AN Cargo Admin</b>
         <Link href="/">Shipments</Link>
+        <Link href="/new">New booking</Link>
         <a href={process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ancargoservices.com'} target="_blank" rel="noopener noreferrer">
           View site
         </a>
