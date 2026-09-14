@@ -115,8 +115,10 @@ function selectStore(): ShipmentStore {
   return new MemoryStore()
 }
 
-export const store: ShipmentStore = globalForStore.ancsAdminStore ?? selectStore()
-
-if (process.env.NODE_ENV !== 'production') globalForStore.ancsAdminStore = store
+// PostgresStore is a stateless pool wrapper — never cache it, so hot-reload always
+// picks up new methods. Only MemoryStore needs caching (it holds in-memory data).
+export const store: ShipmentStore = process.env.DATABASE_URL
+  ? new PostgresStore(createPool(process.env.DATABASE_URL))
+  : (globalForStore.ancsAdminStore ?? (globalForStore.ancsAdminStore = new MemoryStore()))
 
 export const isPersistent = Boolean(process.env.DATABASE_URL)

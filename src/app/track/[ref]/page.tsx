@@ -107,50 +107,38 @@ export default async function TrackRefPage({ params }: Params) {
           <div className="stack">
             <h2 className="h-section">Progress</h2>
             <ol className="timeline">
-              {standardStatuses.map((status) => {
-                const event = shipment.events.find((e) => e.status === status)
-                const done = statusIndex(status) <= currentIndex
-                return (
-                  <li key={status} data-done={done ? 'true' : 'false'}>
-                    <div>
-                      <b>{statusLabels[status]}</b>
-                      {event ? (
-                        <span>
-                          {formatDateTime(event.at)}
-                          {event.location ? ` · ${event.location}` : ''}
-                          {event.note ? ` · ${event.note}` : ''}
-                        </span>
-                      ) : !done ? (
-                        <span className="muted">Not yet</span>
-                      ) : null}
-                    </div>
-                  </li>
+              {(() => {
+                const happenedStandard = new Set(
+                  shipment.events.filter(e => e.status !== 'custom').map(e => e.status)
                 )
-              })}
-            </ol>
-
-            {shipment.events.some(e => e.status === 'custom') && (
-              <>
-                <h3 className="h-sub" style={{ marginTop: '1.5rem' }}>Updates</h3>
-                <ol className="timeline">
-                  {shipment.events
-                    .filter(e => e.status === 'custom')
-                    .slice()
-                    .reverse()
-                    .map((event, i) => (
-                      <li key={event.id ?? `custom-${i}`} data-done="true">
+                const allDone = [...shipment.events].sort((a, b) => a.at.localeCompare(b.at))
+                const remaining = standardStatuses.filter(s => !happenedStandard.has(s))
+                return (
+                  <>
+                    {allDone.map((event, i) => (
+                      <li key={event.id ?? `${event.status}-${i}`} data-done="true">
                         <div>
-                          <b>{event.note}</b>
+                          <b>{event.status === 'custom' ? event.note : statusLabels[event.status]}</b>
                           <span>
                             {formatDateTime(event.at)}
                             {event.location ? ` · ${event.location}` : ''}
+                            {event.status !== 'custom' && event.note ? ` · ${event.note}` : ''}
                           </span>
                         </div>
                       </li>
                     ))}
-                </ol>
-              </>
-            )}
+                    {remaining.map(status => (
+                      <li key={status} data-done="false">
+                        <div>
+                          <b>{statusLabels[status]}</b>
+                          <span className="muted">Not yet</span>
+                        </div>
+                      </li>
+                    ))}
+                  </>
+                )
+              })()}
+            </ol>
           </div>
 
           <div className="row">
