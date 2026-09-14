@@ -107,6 +107,23 @@ table.data td.num { font-variant-numeric: tabular-nums; }
 .status-form { display: flex; flex-wrap: wrap; gap: 0.625rem; align-items: flex-end; }
 .status-form .field { min-width: 12rem; }
 
+.status-form-v2 { display: grid; gap: 1rem; }
+.status-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; }
+.chip {
+  display: inline-flex; align-items: center;
+  padding: 0.4rem 0.875rem; border-radius: 100px;
+  font-size: var(--t-small); font-weight: 600; font: inherit;
+  border: 1px solid var(--line); background: var(--white);
+  color: var(--ink); cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.chip:hover { background: var(--paper); border-color: var(--navy); }
+.chip--active { background: var(--navy); border-color: var(--navy); color: #fff; }
+.chip:disabled { opacity: 0.5; cursor: not-allowed; }
+.status-divider { display: flex; align-items: center; gap: 0.75rem; }
+.status-divider::before, .status-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.status-divider span { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--body-2); font-weight: 600; white-space: nowrap; }
+
 /* ---------- shipment detail ---------- */
 .shipment-head { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: flex-end; justify-content: space-between; }
 .shipment-ref { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 600; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
@@ -124,6 +141,16 @@ table.data td.num { font-variant-numeric: tabular-nums; }
 .timeline li:not(:last-child)::after { content: ''; position: absolute; left: 6px; top: 1.35rem; bottom: 0; width: 1px; background: var(--line); }
 .timeline b { font-size: var(--t-body); font-weight: 600; letter-spacing: -0.02em; }
 .timeline span { display: block; font-size: var(--t-small); color: var(--body-2); }
+
+.event-action {
+  font: inherit; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.02em;
+  padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer;
+  background: transparent; border: 1px solid var(--line); color: var(--body-2);
+  transition: background 0.15s, color 0.15s;
+}
+.event-action:hover { background: var(--paper); color: var(--ink); }
+.event-action--del:hover { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+.event-edit { display: grid; gap: 0.875rem; padding: 1rem; background: var(--paper); border-radius: var(--radius); border: 1px solid var(--line); margin-top: 0.25rem; }
 
 .notice { border-left: 2px solid var(--accent); background: var(--paper); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; font-size: var(--t-small); color: var(--body); }
 .notice b { color: var(--ink); }

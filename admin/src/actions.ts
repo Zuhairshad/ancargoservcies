@@ -58,7 +58,10 @@ export async function updateStatus(form: FormData) {
   const status = String(form.get('status')) as Status
   const location = String(form.get('location') ?? '').trim() || undefined
   const note = String(form.get('note') ?? '').trim() || undefined
-  const shipment = await store.addEvent(ref, status, location, note)
+  const atRaw = String(form.get('at') ?? '').trim()
+  const at = atRaw ? new Date(atRaw).toISOString() : undefined
+
+  const shipment = await store.addEvent(ref, status, location, note, at)
 
   if (shipment) {
     const message = statusChanged(shipment)
@@ -171,6 +174,25 @@ export async function updateGoods(ref: string, goods: GoodsItem[]) {
     ? goods.map(g => `${g.description}${g.qty > 0 ? ` ×${g.qty}` : ''}`).join('; ')
     : ''
   await store.updateGoods(ref, goods, contents)
+  revalidatePath(`/shipments/${ref}`)
+}
+
+export async function editEvent(form: FormData) {
+  const ref = String(form.get('ref'))
+  const eventId = Number(form.get('eventId'))
+  const status = String(form.get('status')) as Status
+  const location = String(form.get('location') ?? '').trim() || undefined
+  const note = String(form.get('note') ?? '').trim() || undefined
+  const atRaw = String(form.get('at') ?? '').trim()
+  const at = atRaw ? new Date(atRaw).toISOString() : undefined
+  await store.updateEvent(ref, eventId, status, location, note, at)
+  revalidatePath(`/shipments/${ref}`)
+}
+
+export async function deleteEvent(form: FormData) {
+  const ref = String(form.get('ref'))
+  const eventId = Number(form.get('eventId'))
+  await store.deleteEvent(ref, eventId)
   revalidatePath(`/shipments/${ref}`)
 }
 

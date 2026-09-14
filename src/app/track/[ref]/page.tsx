@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import TrackForm from '@/components/TrackForm'
 import CtaBand from '@/components/CtaBand'
 import { store } from '@/lib/store'
-import { statusLabels, statuses, statusIndex, normaliseRef } from '@/lib/shipments'
+import { statusLabels, standardStatuses, statusIndex, normaliseRef } from '@/lib/shipments'
 import { modeLabels } from '@/data/rates'
 import { formatDateTime } from '@/lib/dates'
 import { site, whatsappLink } from '@/data/site'
@@ -47,9 +47,11 @@ export default async function TrackRefPage({ params }: Params) {
     )
   }
 
-  const currentIndex = statusIndex(shipment.status)
-  const tone = shipment.status === 'delivered' ? 'done' : shipment.confirmed ? 'active' : 'pending'
+  const lastStandardStatus = [...shipment.events].reverse().find(e => e.status !== 'custom')?.status ?? 'booked'
+  const currentIndex = statusIndex(lastStandardStatus)
+  const tone = lastStandardStatus === 'delivered' ? 'done' : shipment.confirmed ? 'active' : 'pending'
   const lastEvent = shipment.events[shipment.events.length - 1]
+  const currentLabel = shipment.status === 'custom' ? (lastEvent.note ?? 'Update') : statusLabels[shipment.status]
 
   return (
     <>
@@ -60,7 +62,7 @@ export default async function TrackRefPage({ params }: Params) {
             <span className="shipment-ref">{shipment.ref}</span>
             <span className="status-pill" data-tone={tone}>
               <i />
-              {statusLabels[shipment.status]}
+              {currentLabel}
             </span>
           </div>
           <p className="lead lead--onDark">
@@ -105,7 +107,7 @@ export default async function TrackRefPage({ params }: Params) {
           <div className="stack">
             <h2 className="h-section">Progress</h2>
             <ol className="timeline">
-              {statuses.map((status) => {
+              {standardStatuses.map((status) => {
                 const event = shipment.events.find((e) => e.status === status)
                 const done = statusIndex(status) <= currentIndex
                 return (
@@ -126,6 +128,29 @@ export default async function TrackRefPage({ params }: Params) {
                 )
               })}
             </ol>
+
+            {shipment.events.some(e => e.status === 'custom') && (
+              <>
+                <h3 className="h-sub" style={{ marginTop: '1.5rem' }}>Updates</h3>
+                <ol className="timeline">
+                  {shipment.events
+                    .filter(e => e.status === 'custom')
+                    .slice()
+                    .reverse()
+                    .map((event, i) => (
+                      <li key={event.id ?? `custom-${i}`} data-done="true">
+                        <div>
+                          <b>{event.note}</b>
+                          <span>
+                            {formatDateTime(event.at)}
+                            {event.location ? ` · ${event.location}` : ''}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                </ol>
+              </>
+            )}
           </div>
 
           <div className="row">

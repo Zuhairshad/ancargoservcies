@@ -5,7 +5,9 @@ export interface ShipmentStore {
   list(): Promise<Shipment[]>
   get(ref: string): Promise<Shipment | null>
   create(input: NewShipment): Promise<Shipment>
-  addEvent(ref: string, status: Status, location?: string, note?: string): Promise<Shipment | null>
+  addEvent(ref: string, status: Status, location?: string, note?: string, at?: string): Promise<Shipment | null>
+  updateEvent(ref: string, eventId: number, status: Status, location?: string, note?: string, at?: string): Promise<Shipment | null>
+  deleteEvent(ref: string, eventId: number): Promise<Shipment | null>
   confirm(ref: string, freightPkr: number): Promise<Shipment | null>
   updateGoods(ref: string, goods: GoodsItem[], contents: string): Promise<Shipment | null>
   update(ref: string, input: NewShipment): Promise<Shipment | null>
@@ -16,6 +18,7 @@ export type NewShipment = Omit<Shipment, 'ref' | 'createdAt' | 'status' | 'confi
 class MemoryStore implements ShipmentStore {
   private shipments = new Map<string, Shipment>()
   private sequence = 0
+  private eventSeq = 0
 
   async list() {
     return [...this.shipments.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -36,20 +39,42 @@ class MemoryStore implements ShipmentStore {
       status: 'booked',
       confirmed: false,
       freightPkr: null,
-      events: [{ status: 'booked', at: now.toISOString(), location: 'Faisalabad', note: 'Booking received' }],
+      events: [{ id: ++this.eventSeq, status: 'booked', at: now.toISOString(), location: 'Faisalabad', note: 'Booking received' }],
     }
     this.shipments.set(ref, shipment)
     return shipment
   }
 
-  async addEvent(ref: string, status: Status, location?: string, note?: string) {
+  async addEvent(ref: string, status: Status, location?: string, note?: string, at?: string) {
     const s = this.shipments.get(ref)
     if (!s) return null
     const updated: Shipment = {
       ...s,
       status,
-      events: [...s.events, { status, at: new Date().toISOString(), location, note }],
+      events: [...s.events, { id: ++this.eventSeq, status, at: at ?? new Date().toISOString(), location, note }],
     }
+    this.shipments.set(ref, updated)
+    return updated
+  }
+
+  async updateEvent(ref: string, eventId: number, status: Status, location?: string, note?: string, at?: string) {
+    const s = this.shipments.get(ref)
+    if (!s) return null
+    const events = s.events.map(e =>
+      e.id === eventId ? { ...e, status, location, note, at: at ?? e.at } : e,
+    )
+    const latest = [...events].sort((a, b) => b.at.localeCompare(a.at))[0]
+    const updated: Shipment = { ...s, status: latest?.status ?? s.status, events }
+    this.shipments.set(ref, updated)
+    return updated
+  }
+
+  async deleteEvent(ref: string, eventId: number) {
+    const s = this.shipments.get(ref)
+    if (!s) return null
+    const events = s.events.filter(e => e.id !== eventId)
+    const latest = [...events].sort((a, b) => b.at.localeCompare(a.at))[0]
+    const updated: Shipment = { ...s, status: latest?.status ?? 'booked', events }
     this.shipments.set(ref, updated)
     return updated
   }

@@ -15,9 +15,12 @@ export const statuses = [
   'customs',
   'out-for-delivery',
   'delivered',
+  'custom',
 ] as const
 
 export type Status = (typeof statuses)[number]
+
+export const standardStatuses = statuses.filter(s => s !== 'custom') as Exclude<Status, 'custom'>[]
 
 export const statusLabels: Record<Status, string> = {
   booked: 'Booked',
@@ -28,9 +31,11 @@ export const statusLabels: Record<Status, string> = {
   customs: 'Customs clearance',
   'out-for-delivery': 'Out for delivery',
   delivered: 'Delivered',
+  custom: 'Update',
 }
 
 export type ShipmentEvent = {
+  id?: number
   status: Status
   at: string
   location?: string
@@ -81,5 +86,5 @@ export function trackingUrl(ref: string) {
 }
 
 export function statusIndex(status: Status) {
-  return statuses.indexOf(status)
+  return standardStatuses.indexOf(status as Exclude<Status, 'custom'>)
 }

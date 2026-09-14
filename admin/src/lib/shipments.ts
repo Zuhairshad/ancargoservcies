@@ -16,6 +16,7 @@ export const statuses = [
   'customs',
   'out-for-delivery',
   'delivered',
+  'custom',
 ] as const
 
 export type Status = (typeof statuses)[number]
@@ -29,9 +30,15 @@ export const statusLabels: Record<Status, string> = {
   customs: 'Customs clearance',
   'out-for-delivery': 'Out for delivery',
   delivered: 'Delivered',
+  custom: 'Update',
 }
 
+export const quickStatuses = statuses.filter(
+  (s): s is Exclude<Status, 'booked' | 'custom'> => s !== 'booked' && s !== 'custom',
+)
+
 export type ShipmentEvent = {
+  id: number
   status: Status
   at: string
   location?: string

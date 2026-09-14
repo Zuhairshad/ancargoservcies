@@ -3,13 +3,14 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import AdminBar from '@/components/AdminBar'
 import { store } from '@/lib/store'
-import { statuses, statusLabels, trackingUrl } from '@/lib/shipments'
+import { statusLabels, trackingUrl } from '@/lib/shipments'
 import { modeLabels } from '@/data/rates'
-import { formatDateTime } from '@/lib/dates'
 import { formatPkr } from '@/lib/quote'
 import { site, whatsappLink } from '@/data/site'
-import { confirmShipment, isStaff, updateStatus } from '@/actions'
+import { confirmShipment, isStaff } from '@/actions'
 import GoodsSection from '@/components/GoodsSection'
+import StatusForm from '@/components/StatusForm'
+import Timeline from '@/components/Timeline'
 
 type Params = { params: Promise<{ ref: string }> }
 
@@ -133,52 +134,13 @@ export default async function ShipmentPage({ params }: Params) {
             </form>
           )}
 
-          <form className="form-card status-form" action={updateStatus}>
-            <input type="hidden" name="ref" value={shipment.ref} />
-            <div className="field">
-              <label htmlFor="status">New status</label>
-              <select id="status" name="status" defaultValue={shipment.status}>
-                {statuses.map((s) => (
-                  <option key={s} value={s}>
-                    {statusLabels[s]}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="location">Location</label>
-              <input id="location" name="location" placeholder="Port Qasim, Karachi" />
-            </div>
-            <div className="field">
-              <label htmlFor="note">Note</label>
-              <input id="note" name="note" placeholder="ETA Felixstowe 12 Aug" />
-            </div>
-            <button className="btn" type="submit">
-              Add update
-            </button>
-          </form>
+          <StatusForm ref_={shipment.ref} />
 
           <GoodsSection ref_={shipment.ref} goods={shipment.goods} />
 
           <div className="stack">
             <h2 className="h-sub">History</h2>
-            <ol className="timeline">
-              {shipment.events
-                .slice()
-                .reverse()
-                .map((event, i) => (
-                  <li key={`${event.status}-${i}`} data-done="true">
-                    <div>
-                      <b>{statusLabels[event.status]}</b>
-                      <span>
-                        {formatDateTime(event.at)}
-                        {event.location ? ` · ${event.location}` : ''}
-                        {event.note ? ` · ${event.note}` : ''}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-            </ol>
+            <Timeline events={shipment.events} ref_={shipment.ref} />
           </div>
         </div>
       </section>

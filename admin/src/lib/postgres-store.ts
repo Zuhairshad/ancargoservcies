@@ -32,7 +32,7 @@ type Row = {
   source: 'web' | 'manual'
 }
 
-type EventRow = { status: Status; at: Date; location: string | null; note: string | null }
+type EventRow = { id: number; status: Status; at: Date; location: string | null; note: string | null }
 
 const num = (v: string | null): number | null => (v === null ? null : Number(v))
 
@@ -70,6 +70,7 @@ function toShipment(row: Row, events: EventRow[]): Shipment {
     source: row.source ?? 'web',
     events: events.map(
       (e): ShipmentEvent => ({
+        id: e.id,
         status: e.status,
         at: e.at.toISOString(),
         location: e.location ?? undefined,
@@ -79,7 +80,7 @@ function toShipment(row: Row, events: EventRow[]): Shipment {
   }
 }
 
-const SELECT_EVENTS = 'select status, at, location, note from shipment_events where ref = $1 order by at asc, id asc'
+const SELECT_EVENTS = 'select id, status, at, location, note from shipment_events where ref = $1 order by at asc, id asc'
 
 export class PostgresStore implements ShipmentStore {
   private pool: Pool
@@ -170,14 +171,15 @@ export class PostgresStore implements ShipmentStore {
     })
   }
 
-  async addEvent(ref: string, status: Status, location?: string, note?: string): Promise<Shipment | null> {
+  async addEvent(ref: string, status: Status, location?: string, note?: string, at?: string): Promise<Shipment | null> {
     return this.withTransaction(async (client) => {
       const updated = await client.query('update shipments set status = $2 where ref = $1', [ref, status])
       if (updated.rowCount === 0) return null
 
+      const eventAt = at ? new Date(at) : new Date()
       await client.query(
-        `insert into shipment_events (ref, status, at, location, note) values ($1, $2, now(), $3, $4)`,
-        [ref, status, location ?? null, note ?? null],
+        `insert into shipment_events (ref, status, at, location, note) values ($1, $2, $3, $4, $5)`,
+        [ref, status, eventAt, location ?? null, note ?? null],
       )
 
       const { rows } = await client.query<Row>('select * from shipments where ref = $1', [ref])
@@ -201,6 +203,39 @@ export class PostgresStore implements ShipmentStore {
       [ref, JSON.stringify(goods), contents],
     )
     if (updated.rowCount === 0) return null
+    return this.get(ref)
+  }
+
+  async updateEvent(ref: string, eventId: number, status: Status, location?: string, note?: string, at?: string): Promise<Shipment | null> {
+    const eventAt = at ? new Date(at) : undefined
+    const setParts: string[] = ['status = $2', 'location = $3', 'note = $4']
+    const params: unknown[] = [eventId, status, location ?? null, note ?? null]
+    if (eventAt) {
+      setParts.push(`at = $${params.length + 1}`)
+      params.push(eventAt)
+    }
+    await this.pool.query(
+      `update shipment_events set ${setParts.join(', ')} where id = $1`,
+      params,
+    )
+    // Recalculate the shipment's current status from latest event
+    await this.pool.query(
+      `update shipments set status = (
+        select status from shipment_events where ref = $1 order by at desc, id desc limit 1
+      ) where ref = $1`,
+      [ref],
+    )
+    return this.get(ref)
+  }
+
+  async deleteEvent(ref: string, eventId: number): Promise<Shipment | null> {
+    await this.pool.query('delete from shipment_events where id = $1 and ref = $2', [eventId, ref])
+    await this.pool.query(
+      `update shipments set status = (
+        select status from shipment_events where ref = $1 order by at desc, id desc limit 1
+      ) where ref = $1`,
+      [ref],
+    )
     return this.get(ref)
   }
 

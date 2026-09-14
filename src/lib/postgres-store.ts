@@ -37,7 +37,7 @@ type Row = {
   pickup_date: Date | null
 }
 
-type EventRow = { status: Status; at: Date; location: string | null; note: string | null }
+type EventRow = { id: number; status: Status; at: Date; location: string | null; note: string | null }
 
 /** numeric comes back from pg as a string to avoid float rounding — parse at the edge. */
 const num = (v: string | null): number | null => (v === null ? null : Number(v))
@@ -74,6 +74,7 @@ function toShipment(row: Row, events: EventRow[]): Shipment {
     pickupDate: row.pickup_date ? row.pickup_date.toISOString().slice(0, 10) : undefined,
     events: events.map(
       (e): ShipmentEvent => ({
+        id: e.id,
         status: e.status,
         at: e.at.toISOString(),
         location: e.location ?? undefined,
@@ -83,7 +84,7 @@ function toShipment(row: Row, events: EventRow[]): Shipment {
   }
 }
 
-const SELECT_EVENTS = 'select status, at, location, note from shipment_events where ref = $1 order by at asc, id asc'
+const SELECT_EVENTS = 'select id, status, at, location, note from shipment_events where ref = $1 order by at asc, id asc'
 
 export class PostgresStore implements ShipmentStore {
   private pool: Pool
@@ -110,7 +111,7 @@ export class PostgresStore implements ShipmentStore {
   async list(): Promise<Shipment[]> {
     const { rows } = await this.pool.query<Row>('select * from shipments order by created_at desc')
     const events = await this.pool.query<EventRow & { ref: string }>(
-      'select ref, status, at, location, note from shipment_events order by at asc, id asc',
+      'select id, ref, status, at, location, note from shipment_events order by at asc, id asc',
     )
     const byRef = new Map<string, EventRow[]>()
     for (const e of events.rows) {

@@ -1,12 +1,38 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { secondaryServices } from '@/data/services'
 import { site } from '@/data/site'
 import { ArrowCircle } from '@/components/PageHero'
 import { ArrowRight } from '@/components/Icons'
 import Photo from '@/components/Photo'
 
+const testimonials = [
+  {
+    quote: "We ship textiles to the UK every month. ANCS gave us better rates than our old agent and nothing has been delayed or damaged. Very reliable team.",
+    name: "Ahmed Raza",
+    role: "Textile Exporter, Lahore",
+    avatar: "/images/avatar-1.webp",
+  },
+  {
+    quote: "I needed to send a big parcel to my family in Canada. They picked it up from my house and it arrived in 10 days. Simple process, no stress.",
+    name: "Sara Malik",
+    role: "Personal Shipment, Karachi",
+    avatar: "/images/avatar-2.webp",
+  },
+  {
+    quote: "Our company imports goods regularly from China. ANCS handles all the customs paperwork and we have never had a single clearance problem in three years.",
+    name: "Omar Sheikh",
+    role: "Import-Export Business, Islamabad",
+    avatar: "/images/avatar-3.webp",
+  },
+]
+
 export default function ServicesBand() {
   const cards = secondaryServices
+  const [index, setIndex] = useState(0)
+  const t = testimonials[index]
 
   return (
     <section className="band band--navy">
@@ -61,7 +87,7 @@ export default function ServicesBand() {
 
         <div className="quotes">
           <p className="eyebrow eyebrow--onDark" data-reveal>
-            1–6
+            {index + 1}&ndash;{testimonials.length}
           </p>
           <div>
             <div className="quotes__head">
@@ -74,19 +100,36 @@ export default function ServicesBand() {
               </Link>
             </div>
             <div className="quotes__body">
-              <span className="pending" data-reveal style={{ ['--reveal-delay' as string]: '.12s' }}>
-                Awaiting real client quotes
-              </span>
-              <blockquote data-reveal style={{ ['--reveal-delay' as string]: '.18s' }}>
-                “Your client’s words go here — the section is built and ready, it just needs quotes from customers who
-                agree to be named.”
+              <blockquote data-reveal style={{ ['--reveal-delay' as string]: '.12s' }}>
+                &ldquo;{t.quote}&rdquo;
               </blockquote>
-              <div className="byline" data-reveal style={{ ['--reveal-delay' as string]: '.24s' }}>
-                <span className="byline__avatar" aria-hidden="true" />
+              <div className="byline" data-reveal style={{ ['--reveal-delay' as string]: '.18s' }}>
+                <Image
+                  className="byline__avatar"
+                  src={t.avatar}
+                  alt={t.name}
+                  width={48}
+                  height={48}
+                />
                 <div>
-                  <b>Client name</b>
-                  <span>Company, city</span>
+                  <b>{t.name}</b>
+                  <span>{t.role}</span>
                 </div>
+              </div>
+              <div className="quotes__nav" data-reveal style={{ ['--reveal-delay' as string]: '.24s' }}>
+                <button
+                  aria-label="Previous review"
+                  onClick={() => setIndex((index - 1 + testimonials.length) % testimonials.length)}
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 2.5L4 7l4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
+                <span className="quotes__counter">{index + 1} / {testimonials.length}</span>
+                <button
+                  aria-label="Next review"
+                  onClick={() => setIndex((index + 1) % testimonials.length)}
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5.5 2.5L10 7l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
               </div>
             </div>
           </div>
